@@ -31,7 +31,7 @@ account.mobile_info('identity_secret')
 then you can send your offer 
 - `Myarray` is an array which contains hashes of selected items to send in the offer. (currently you must get this alone)
 - `Theirarray` is an array which contains hashes of selected items to receive in the offer. (currently you must get this alone)
-- `trade_offer_link` is the trade link of you partner ex: https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt
+- `trade_offer_link` is the trade link of you partner `ex: https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt`
 - `message` is the comment you want to include in the trade offer
 
 - `Myarray`, `Theirarray`, `trade_offer_link` are required, `message` is optional
