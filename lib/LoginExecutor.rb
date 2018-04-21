@@ -33,7 +33,6 @@ module LoginCommands
 
                   if response["success"] == true
                         repeater = true
-                        puts response
                   elsif repeater == 3
                         puts "Could not login"
                         puts "exiting"

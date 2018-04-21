@@ -5,7 +5,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = "steam-trade"
-  spec.version       = '0.0.3'
+  spec.version       = '0.0.4'
   spec.date             = '2018-04-21'
   spec.authors       = ["OmG3r"]
   spec.email         = ["adam.boulila@live.fr"]

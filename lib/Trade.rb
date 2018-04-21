@@ -56,7 +56,7 @@ module TradeCommands
                   {'Referer' =>  'https://steamcommunity.com/tradeoffer/new', 'Origin' => 'https://steamcommunity.com'}
             )
             response = JSON.parse(send.body)
-            puts "trade offer sent " + response["tradeofferid"])
+            puts "trade offer sent " + response["tradeofferid"]
             if response["needs_mobile_confirmation"] == true
                   if @identity_secret != nil && @steamid != nil
                         responsehash = response.merge(send_trade_allow_request(response["tradeofferid"]))
