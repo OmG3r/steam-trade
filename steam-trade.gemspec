@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.files            = Dir['lib/   *.rb'] + Dir['bin/*']
   spec.summary       = %q{Manage steam trading offers. }
   spec.description   = %q{Send steam trading offers, generate steam 2FA codes, confirm steam trade offers}
-  spec.homepage      = "https://github.com/OmG3r/Test"
+  spec.homepage      = "https://github.com/OmG3r/steam-trade/"
   spec.license       = "MIT"
 
 
