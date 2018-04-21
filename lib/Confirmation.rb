@@ -1,9 +1,9 @@
-require './Guard.rb'
+require 'Guard.rb'
 
 
 module ConfirmationCommands
       include GuardCommands
-      
+
 
 
 
