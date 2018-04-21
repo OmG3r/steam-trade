@@ -39,7 +39,6 @@ module LoginCommands
                         puts "exiting"
                        exit
                  else
-                       puts response
                        puts "re-trying to login"
                        puts "sleeping for 6 seconds"
                        sleep(6)
@@ -56,7 +55,7 @@ module LoginCommands
             else
                   @steamid = response["transfer_parameters"]["steamid"]
             end
-            puts "steamid is #{@steamid}"
+
 
             response["transfer_urls"].each { |url|
                   @session.post(url, response["transfer_parameters"])

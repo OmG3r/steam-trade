@@ -25,7 +25,6 @@ module ConfirmationCommands
                   }
                   confirmations <<  add
             }
-            puts confirmations
             return confirmations
       end
 
@@ -54,7 +53,6 @@ module ConfirmationCommands
             no = nil
             response = @session.get('https://steamcommunity.com/mobileconf/conf', params, no, headers)
             html = response.content
-            File.open('confirm.html', 'w') {|f| f.puts html}
             if html.include?('Steam Guard Mobile Authenticator is providing incorrect Steam Guard codes.')
                   puts "invalid steammguard"
                   exit
@@ -79,12 +77,9 @@ module ConfirmationCommands
 
       def fetch_confirmation_details_page(hash) ##eigth
             var = hash['id']
-            puts "var is #{var}"
             tag = 'details' + var
             params = create_confirmation_params(tag) ## EXISTS
             response = @session.get("https://steamcommunity.com/mobileconf/details/#{var}", params)
-            File.open('./debug.html','w' ) {|f| f.puts response.content}
-            File.open('./debug2.html','w' ) {|f| f.puts JSON.parse(response.content)["html"]}
             return JSON.parse(response.content)["html"]
       end
 
