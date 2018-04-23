@@ -29,11 +29,10 @@ account.mobile_info('identity_secret')
 
 ```
 ## Getting someone's inventory
-#### `normal_get_inventory('steamid','inventoryappid','contextid')`
+#### `normal_get_inventory('steamid','inventoryappid')`
 - `steamid` is the target's steamid
-- `inventoryappid` is the inventory type you want to load, ex : normal inventory(the one which holds trading cards), it's is 753
-- `contextid` required to make a correct request to steam servers, ex:for normal inventory(the one which holds trading cards), it's is 6
-- if you call `normal_get_inventory()` with no params, it will be default use the current logged-in account `steamid`, `inventoryappid = 753` and `contextid = 6`
+- `inventoryappid` is the inventory type you want to load, `ex : normal inventory(the one which holds trading cards), it's is 753`
+- if you call `normal_get_inventory()` with no params, it will be default use the current logged-in account `steamid`, `inventoryappid = 753`
 
 ```ruby
 require 'steam-trade'
@@ -43,7 +42,9 @@ account.mobile_info('identity_secret')
 
 my_inventory = normal_get_inventory() #if you are logged in you can call this command with no parameters to get the logged account's inventory
 
-partner_inventory = normal_get_inventory('76561198044170935')
+partner_inventory = normal_get_inventory('76561198044170935') using steamid
+partner_inventory = normal_get_inventory('https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt') #using trade link
+partner_inventory = normal_get_inventory('76561198044170935',)
 ```
 the returned items from `normal_get_inventory()` are in the form of an array example : `[item1,item2,item3...itemN]`.
 
@@ -52,7 +53,15 @@ each item is a hash which contains information about the item in the form of `{"
 `market_fee_app` key gives you the appid of the game's app ( for trading cards), for other items technically `inventoryappid` is the games appid.
 
 `name` key gives you the item name.
-####
+#### `set_inventory_cache()`
+`set_inventory_cache()` is:
+
+- a switch to locally save each inventory you get to a local file.
+- disabled by default, you need to initiate it by calling the command
+- accepts a parameter `timer` which defaults to `timer = 120`, this parameter is the difference between the save file was created and the moment it was checked (upong trying to retrieve the inventory).
+
+- this switch is useful if you are getting a "static" inventory or testing your code.
+
 
 **IMPORTANT**: `normal_get_inventory()` will load the whole target inventory, for each **5k** of items, you are adding **~40MB** to your memory and of course will affect performance of the code and the computer
 ## Sending a trade offer
