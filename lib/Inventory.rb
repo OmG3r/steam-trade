@@ -5,17 +5,35 @@ module InventoryCommands
 
 
       def normal_get_inventory(steamid = @steamid ,appid = 753)
+            appid = appid.to_s
             context = 6
+            #verify given another game
             if appid.to_s != "753"
                   context = 2
             end
+            #end verify given another game
+
+            #verify given appid only
+            if steamid.to_s.length < 8 && @steamid != nil
+                  appid = steamid.to_s
+                  steamid = @steamid
+            end
+            # end verify given appid only
+            #verify trade link
             if steamid == nil
                 raise "not logged-in and no steamid specified"
           elsif steamid.to_i == 0 && steamid.include?("?partner=") ##supplied trade link
                 partner_raw = steamid.split('partner=',2)[1].split('&',2)[0]
                 steamid = partner_id_to_steam_id(partner_raw)
             end
+            #verify trade link
 
+            ## verify appid
+            if ["753","730",'570','440'].include?(appid.to_s) == false
+                  allgames = JSON.parse("#{@libdir}/blueprints/game_inv_list.json")
+                  raise "invalid appid" if allgames.include?(appid.to_s) == false
+            end
+            ## end verify appid
 
             if @inventory_cache == true
                   verdict = verify_inventory_cache(steamid)
