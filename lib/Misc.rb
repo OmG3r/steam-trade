@@ -69,12 +69,11 @@ module MiscCommands
 
       def verify_profileid_or_trade_link_or_steamid(steamid)
             if steamid.to_i == 0 && steamid.include?("?partner=") ##supplied trade link
-                  puts "got trade link"
                 partner_raw = steamid.split('partner=',2)[1].split('&',2)[0]
+                token = steamid.split('token=', 2)[1]
                 steamid = partner_id_to_steam_id(partner_raw)
-                return steamid
+                return [steamid,token]
             elsif steamid.to_i == 0
-                  puts "got profileid"
                   parser = Nokogiri::XML(@session.get("https://steamcommunity.com/id/#{steamid}?xml=1").content)
                   if parser.xpath('//error').text == ('The specified profile could not be found.')
                         raise "No profile with #{steamid} as profileid"
