@@ -4,13 +4,14 @@ module GuardCommands
 
 
 
-      def fa()
+      def fa(shared_secret = @secret)
+            raise "No shared_secret given" if shared_secret == nil # cause upon initialization @secret = nil
             timestamp = Time.new.to_i
             math = timestamp / 30
             math = math.to_i
             time_buffer =[math].pack('Q>')
 
-            hmac = OpenSSL::HMAC.digest('sha1', Base64.decode64(@secret), time_buffer)
+            hmac = OpenSSL::HMAC.digest('sha1', Base64.decode64(shared_secret), time_buffer)
 
             start = hmac[19].ord & 0xf
             last = start + 4
@@ -29,6 +30,7 @@ module GuardCommands
 
       end
 
+      private
       def generate_confirmation_key(tag_string, time_stamp)
             buffer = [time_stamp].pack('Q>') + tag_string.encode('ascii')
             return Base64.encode64(OpenSSL::HMAC.digest('sha1', Base64.decode64(@identity_secret), buffer))
