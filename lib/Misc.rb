@@ -79,6 +79,3 @@ module Util
                raise "both paths are invalid: #{t}, while getting gemlib directory"
          end
 end
-
-
-puts Util.gem_libdir
