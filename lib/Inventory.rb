@@ -15,7 +15,6 @@ module InventoryCommands
 
             #verify given appid only
             if (3..6).to_a.include?(steamid.to_i.to_s.length)
-                  puts "we got an appid"
                   raise "You cannot give an appid only if you are not logged in" if @steamid == nil
                   appid = steamid.to_s
                   steamid = @steamid
@@ -24,7 +23,6 @@ module InventoryCommands
 
             #verify given another game
             if appid.to_s != "753"
-                  puts "getting a new game"
                   context = 2
             end
             #end verify given another game
@@ -32,7 +30,7 @@ module InventoryCommands
             #verify trade link
 
 
-            steamid = verify_profileid_or_trade_link_or_steamid(steamid)
+            steamid,token = verify_profileid_or_trade_link_or_steamid(steamid)
 
             raise "invalid steamid : #{steamid}, length of received :: #{steamid.to_s.length}, normal is 17" if steamid.to_s.length != 17
             ## verify appid
@@ -48,8 +46,7 @@ module InventoryCommands
                         return verdict
                   end
             end
-            puts "steamid :#{steamid}"
-            puts "appid : #{appid}"
+
 
             items = []
             last_id = 0
@@ -118,12 +115,10 @@ module InventoryCommands
             if File.exists?("./#{steamid}_#{appid}.inventory") == false
                   return false
             end
-            puts File.mtime("./#{steamid}_#{appid}.inventory").to_s
-            puts Time.now.to_s
+
             file_last_time =  Time.parse(File.mtime("./#{steamid}_#{appid}.inventory").to_s)
             current_time = Time.parse(Time.now.to_s)
             calcule = current_time - file_last_time
-            puts "difference #{calcule}"
             if calcule.to_i > @inventory_validity
                   File.delete("./#{steamid}_#{appid}.inventory")
                   return false
