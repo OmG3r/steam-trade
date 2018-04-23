@@ -1,4 +1,4 @@
-# steam-trade
+# steam-trade V0.0.7
 
 This gem simplifes/allows sending steam trade offers programmatically.
 
@@ -28,6 +28,14 @@ account.mobile_info('identity_secret')
 #identity_secret is required
 
 ```
+keep in mind you can initialize a Handler without params however the commands you will be able to use will be limited
+```ruby
+require 'steam-trade'
+
+account = Handler.new()
+puts account.fa('v3dWNq2Ncutc7RelwRVXswT8CJX=v3dWNq2Ncutc7WelwRVXswT8CJk=') => random code
+
+```
 ## Getting someone's inventory
 #### `normal_get_inventory('steamid','inventoryappid')`
 - `steamid` is the target's steamid
@@ -39,18 +47,31 @@ require 'steam-trade'
 
 account = Handler.new('username','password','shared_secret')
 account.mobile_info('identity_secret')
+# while logged in
+my_inventory = normal_get_inventory() #will get your normal inventory(753) if you are logged in else raise an exception
+my_inventory = normal_get_inventory('730') # will get your CS:GO inventory if you are logged in else raise an exeception
 
-my_inventory = normal_get_inventory() #if you are logged in you can call this command with no parameters to get the logged account's inventory
+#while not logged in
+my_inventory = normal_get_inventory() #will raise an exception
+my_inventory = normal_get_inventory('730') #will raise an exception
 
-partner_inventory = normal_get_inventory('76561198044170935') using steamid
+#whenever
+partner_inventory = normal_get_inventory('76561198044170935') #using steamid
 partner_inventory = normal_get_inventory('https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt') #using trade link
-partner_inventory = normal_get_inventory('76561198044170935',)
+partner_inventory = normal_get_inventory('CardExchange') #using profile id
+
+
+partner_inventory = normal_get_inventory('76561198044170935',730) #will get that steamid CS:GO inventory
+partner_inventory = normal_get_inventory('https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt', '730') #will get that trade link owner's CS:GO inventory
+partner_inventory = normal_get_inventory('CardExchange',730) # will get CardExchange's CS:GO inventory
+
+
 ```
 the returned items from `normal_get_inventory()` are in the form of an array example : `[item1,item2,item3...itemN]`.
 
 each item is a hash which contains information about the item in the form of `{"appid"=>'xxx',"contextid"=>'xxx',"assetid" => 'xxx',"classid"=> 'xxx',......"name"=> 'xxxx',"market_fee_app" => 'xxx',....}`.
 
-`market_fee_app` key gives you the appid of the game's app ( for trading cards), for other items technically `inventoryappid` is the games appid.
+`market_fee_app` key gives you the appid of the game's app (for trading cards), for other items technically `inventoryappid` is the games appid.
 
 `name` key gives you the item name.
 #### `set_inventory_cache()`
