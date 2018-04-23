@@ -158,8 +158,9 @@ hash = account.sets_count('https://steamcommunity.com/tradeoffer/new/?partner=41
 ```
 ## 2FA codes
 #### `fa(shared_secret)`
-- `shared_secret` is the account's shared secret (if you don't know what is this try googling 'steam shared_secret'), defaults to the logged in account's steamid if logged in
-**NOTE**: using this command with a share_secret will not change/set the current saved shared_secret for the account
+- `shared_secret` is the account's shared secret (if you don't know what is this try googling 'steam shared_secret'), defaults to the logged in account's steamid if logged in.
+
+**NOTE**: using this command with a new shared_secret will not change/set the current saved shared_secret for the account
 ```ruby
 require 'steam-trade'
 
