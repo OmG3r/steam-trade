@@ -23,9 +23,11 @@ require 'steam-trade'
 account = Handler.new('username','password','shared_secret') # share secret is optional
 #username and password are required, shared_secret is optional
 
-
 account.mobile_info('identity_secret')
 #identity_secret is required
+
+##########
+account = Handler.new('username') #this of course counts as non logged in
 
 ```
 keep in mind you can initialize a Handler without params however the commands you will be able to use will be limited
@@ -45,25 +47,28 @@ puts account.fa('v3dWNq2Ncutc7RelwRVXswT8CJX=v3dWNq2Ncutc7WelwRVXswT8CJk=') => r
 ```ruby
 require 'steam-trade'
 
-account = Handler.new('username','password','shared_secret')
-account.mobile_info('identity_secret')
+logged = Handler.new('username','password','shared_secret')
+logged.mobile_info('identity_secret')
 # while logged in
-my_inventory = normal_get_inventory() #will get your normal inventory(753) if you are logged in else raise an exception
-my_inventory = normal_get_inventory('730') # will get your CS:GO inventory if you are logged in else raise an exeception
+my_inventory = logged.normal_get_inventory() #will get your normal inventory(753) if you are logged in else raise an exception
+my_inventory = logged.normal_get_inventory('730') # will get your CS:GO inventory if you are logged in else raise an exeception
 
+
+#whatever can be done while **not** logged in, can be of course used while logged in
 #while not logged in
-my_inventory = normal_get_inventory() #will raise an exception
-my_inventory = normal_get_inventory('730') #will raise an exception
+nonlogged = Handler.new()
+my_inventory = nonlogged.normal_get_inventory() #will raise an exception
+my_inventory = nonlogged.normal_get_inventory('730') #will raise an exception
 
 #whenever
-partner_inventory = normal_get_inventory('76561198044170935') #using steamid
-partner_inventory = normal_get_inventory('https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt') #using trade link
-partner_inventory = normal_get_inventory('CardExchange') #using profile id
+partner_inventory = nonlogged.normal_get_inventory('76561198044170935') #using steamid
+partner_inventory = nonlogged.normal_get_inventory('https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt') #using trade link
+partner_inventory = nonlogged.normal_get_inventory('CardExchange') #using profile id
 
 
-partner_inventory = normal_get_inventory('76561198044170935',730) #will get that steamid CS:GO inventory
-partner_inventory = normal_get_inventory('https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt', '730') #will get that trade link owner's CS:GO inventory
-partner_inventory = normal_get_inventory('CardExchange',730) # will get CardExchange's CS:GO inventory
+partner_inventory = nonlogged.normal_get_inventory('76561198044170935',730) #will get that steamid CS:GO inventory
+partner_inventory = nonlogged.normal_get_inventory('https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt', '730') #will get that trade link owner's CS:GO inventory
+partner_inventory = nonlogged.normal_get_inventory('CardExchange',730) # will get CardExchange's CS:GO inventory
 
 
 ```
@@ -87,6 +92,7 @@ each item is a hash which contains information about the item in the form of `{"
 **IMPORTANT**: `normal_get_inventory()` will load the whole target inventory, for each **5k** of items, you are adding **~40MB** to your memory and of course will affect performance of the code and the computer
 ## Sending a trade offer
 #### `send_offer(myarray,theirarray,trade_offer_link,message)`
+**MUST be logged in to use this command**
 then you can send your offer
 - `myarray` is an array which contains hashes of selected items to send in the offer. (currently you must get this alone)
 - `Theirarray` is an array which contains hashes of selected items to receive in the offer. (currently you must get this alone)
@@ -127,19 +133,48 @@ account.send_offer(myarray,theirarray,"https://steamcommunity.com/tradeoffer/new
   - `'sets'` is a hash with game appids as keys and each card and number of copies owned of each card `{'appid1' => {'card1' => 5,'card2' => 3, ... 'cardN' => Z},{'appid1' => {'card1' => 0,'card2' => 2, ... 'cardN' => K} }`
   - `'appxsets'` is a hash containing the number of sets available of each set `{'appid1' => 5,'appid2' => 20,...'appidN' => Z}`
   - `'totalsets'` is an integer equals to the number of sets owned
-  - `totalcards'` is an integer equals to the number of non-foil cards account for
+  - `'totalcards'` is an integer equals to the number of non-foil cards account for
 ```ruby
 require 'steam-trade'
 
-account = Handler.new('username','password','shared_secret')
-account.mobile_info('identity_secret')
+logged = Handler.new('username','password','shared_secret')
+logged.mobile_info('identity_secret')
 #with login
-hash = account.sets_count()
+logged = account.sets_count()
+logged = account.sets_count(false)
+hash = account.sets_count('CardExchange',false)
+hash = account.sets_count(76561198370420964)
+hash = account.sets_count('https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt',false)
+
 
 #without login
+nonlogged = Handler.new()
+logged = account.sets_count() raise exception
+logged = account.sets_count(false) # raise exception
 hash = account.sets_count('CardExchange')
 hash = account.sets_count(76561198370420964)
 hash = account.sets_count('https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt',false)
+
+```
+## 2FA codes
+#### `fa(shared_secret)`
+- `shared_secret` is the account's shared secret (if you don't know what is this try googling 'steam shared_secret'), defaults to the logged in account's steamid if logged in
+**NOTE**: using this command with a share_secret will not change/set the current saved shared_secret for the account
+```ruby
+require 'steam-trade'
+
+logged = Handler.new('username','password','inital_shared_secret')
+puts logged.fa() #=> random code for your account
+puts logged.fa('new_shared_secret') # => this will give you a random code for another account, AND will not edit your initial_shared_secret
+
+####
+logged_without_shared_secret = Handler.new('username','password') # this is possible of course
+puts logged_without_shared_secret.fa() # this will not work
+puts logged_without_shared_secret.fa('shared_secret') ## will give a random code
+###
+nonlogged = Handler.new()
+puts nonlogged.fa() # will not work
+puts nonlogged.fa() # will give a random code
 
 ```
 
