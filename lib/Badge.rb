@@ -13,7 +13,7 @@ module BadgeCommands
                   raise "You are not logged in and did not specify a steamid"
             end
 
-            steamid = verify_profileid_or_trade_link_or_steamid(steamid)
+            steamid,token = verify_profileid_or_trade_link_or_steamid(steamid)
             thread = Thread.new(steamid) { |steamid| ##getting name
                   targetname = ''
                   begin
