@@ -4,15 +4,18 @@ module InventoryCommands
 
 
 
-      def normal_get_inventory(steamid = @steamid ,appid = 753,context = 6)
+      def normal_get_inventory(steamid = @steamid ,appid = 753)
+            context = 6
+            if appid.to_s != "753"
+                  context = 2
+            end
             if steamid == nil
-                output "no steamid specified"
-                return
+                raise "not logged-in and no steamid specified"
           elsif steamid.to_i == 0 && steamid.include?("?partner=") ##supplied trade link
                 partner_raw = steamid.split('partner=',2)[1].split('&',2)[0]
                 steamid = partner_id_to_steam_id(partner_raw)
             end
-            
+
 
             if @inventory_cache == true
                   verdict = verify_inventory_cache(steamid)
