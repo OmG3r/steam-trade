@@ -12,7 +12,7 @@ module InventoryCommands
                 partner_raw = steamid.split('partner=',2)[1].split('&',2)[0]
                 steamid = partner_id_to_steam_id(partner_raw)
             end
-
+            
 
             if @inventory_cache == true
                   verdict = verify_inventory_cache(steamid)
@@ -63,14 +63,13 @@ module InventoryCommands
 
                   descriptions_classids = {} ###sorting descriptions by key value || key is classid of the item's description
                   descriptions.each {|description|
-                    classid = description["classid"]
-                    descriptions_classids[classid] = description
+                       classidxinstance = description["classid"] + '_' + description["instanceid"] # some items has the same classid but different instane id
+                       descriptions_classids[classidxinstance] = description
                   }
 
                   assets.each { |asset| ## merging assets with names
-                    classid = asset["classid"]
-                    asset.replace(asset.merge(descriptions_classids[classid]))
-
+                       classidxinstane = asset["classid"] + '_' + asset["instanceid"]
+                       asset.replace(asset.merge(descriptions_classids[classidxinstance]))
                   }
 
 
