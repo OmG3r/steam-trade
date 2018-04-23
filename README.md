@@ -149,7 +149,7 @@ hash = account.sets_count('https://steamcommunity.com/tradeoffer/new/?partner=41
 
 #without login
 nonlogged = Handler.new()
-logged = account.sets_count() raise exception
+logged = account.sets_count() #raise exception
 logged = account.sets_count(false) # raise exception
 hash = account.sets_count('CardExchange')
 hash = account.sets_count(76561198370420964)
