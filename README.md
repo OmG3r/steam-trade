@@ -1,4 +1,4 @@
-# steam-trade V0.0.7
+# steam-trade V0.0.8
 
 This gem simplifes/allows sending steam trade offers programmatically.
 
@@ -86,24 +86,62 @@ each item is a hash which contains information about the item in the form of `{"
 
 **IMPORTANT**: `normal_get_inventory()` will load the whole target inventory, for each **5k** of items, you are adding **~40MB** to your memory and of course will affect performance of the code and the computer
 ## Sending a trade offer
+#### `send_offer(myarray,theirarray,trade_offer_link,message)`
 then you can send your offer
-- `Myarray` is an array which contains hashes of selected items to send in the offer. (currently you must get this alone)
+- `myarray` is an array which contains hashes of selected items to send in the offer. (currently you must get this alone)
 - `Theirarray` is an array which contains hashes of selected items to receive in the offer. (currently you must get this alone)
-- `trade_offer_link` is the trade link of you partner `ex: https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt`
-- `trade_offer_link` can also be a steamID, however using a steamID requires you and your partner to be friends on steam
+- `trade_offer_link` can be the trade link of you partner `ex: https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt`
+- `trade_offer_link` can be a steamID, however using a steamID requires you and your partner to be friends on steam
+- `trade_offer_link` can  be a profileID, however using a profileID requires you and your partner to be friends on steam
 - `message` is the comment you want to include in the trade offer
 
-- `Myarray`, `Theirarray`, `trade_offer_link` are required, `message` is optional
+- `myarray`, `theirarray`, `trade_offer_link` are required, `message` is optional
 ```ruby
 require 'steam-trade'
 
 account = Handler.new('username','password','shared_secret')
 account.mobile_info('identity_secret')
 
+me = account.normal_get_inventory()
+his = account.normal_get_inventory("nomg3r")
 
-account.send_offer(Myarray,Theirarray,trade_offer_link,message)
+myarray = [me[5] , me[20] , me[60]].compact!
+theirarray = [his[1], his[20], his[30]].compact!
+
+# if you are friends
+account.send_offer(myarray,theirarray,"nomg3r",message)
+#or (as friends)
+account.send_offer(myarray,theirarray,'76561198370420964',message)
+
+# whenever
+account.send_offer(myarray,theirarray,"https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt",message)
+
 ```
+## Counting badges owned
+#### `sets_count(target,non_marketable)`
+**this command does not count foil badges (only normal trading cards)**
+- `target` can be a steamID, a profileID or a trade link
+- `non_marketable` this is a switch to count marketable cards(defaults to true if not specified)
+- a .txt will be created from this command to read the badges
+- this returns a hash  `{'sets' => appsets, 'appxsets' => setsowned, 'totalsets' => numberofsets, 'totalcards' => total_non_foil, 'marketable' => true}`
+  - `'sets'` is a hash with game appids as keys and each card and number of copies owned of each card `{'appid1' => {'card1' => 5,'card2' => 3, ... 'cardN' => Z},{'appid1' => {'card1' => 0,'card2' => 2, ... 'cardN' => K} }`
+  - `'appxsets'` is a hash containing the number of sets available of each set `{'appid1' => 5,'appid2' => 20,...'appidN' => Z}`
+  - `'totalsets'` is an integer equals to the number of sets owned
+  - `totalcards'` is an integer equals to the number of non-foil cards account for
+```ruby
+require 'steam-trade'
 
+account = Handler.new('username','password','shared_secret')
+account.mobile_info('identity_secret')
+#with login
+hash = account.sets_count()
+
+#without login
+hash = account.sets_count('CardExchange')
+hash = account.sets_count(76561198370420964)
+hash = account.sets_count('https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt',false)
+
+```
 
 ## License
 

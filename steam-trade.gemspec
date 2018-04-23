@@ -7,12 +7,12 @@ require 'meta/version'
 Gem::Specification.new do |spec|
   spec.name          = Meta::GEM_NAME
   spec.version       = Meta::VERSION
-  spec.date             = '2018-04-21'
+  spec.date             = Time.new.strftime("%Y-%m-%d")
   spec.authors       = ["OmG3r"]
   spec.email         = ["adam.boulila@live.fr"]
   spec.files            = Dir['lib/   *.rb'] + Dir['bin/*'] + Dir['lib/meta/*rb'] + Dir['lib/blueprints/*json']
   spec.summary       = %q{A steambot library to manage steam trading offers.}
-  spec.description   = %q{Send steam trading offers, generate steam 2FA codes, confirm steam trade offers, get inventories}
+  spec.description   = %q{Send steam trading offers, generate steam 2FA codes, confirm steam trade offers, get inventories,count badges}
   spec.homepage      = "https://github.com/OmG3r/steam-trade/"
   spec.license       = "MIT"
 
