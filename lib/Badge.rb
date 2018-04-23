@@ -1,13 +1,19 @@
 module BadgeCommands
 
       def sets_count(steamid = @steamid, use_nonmarketable = true)
-
-
             if steamid == nil
                   output "no steamid specified"
                   return
             end
 
+            if [TrueClass,FalseClass].include?(steamid.class) && @steamid != nil
+                  use_nonmarketable = steamid
+                  steamid = @steamid
+            elsif [TrueClass,FalseClass].include?(steamid.class) && @steamid == nil
+                  raise "You are not logged in and did not specify a steamid"
+            end
+
+            steamid = verify_profileid_or_trade_link_or_steamid(steamid)
             thread = Thread.new(steamid) { |steamid| ##getting name
                   targetname = ''
                   begin
@@ -49,7 +55,7 @@ module BadgeCommands
                   end
             }
 
-            bigdata = JSON.parse(File.read("#{@libdir}/blueprints/byappid.json",:external_encoding => 'utf-8',:internal_encoding => 'utf-8'))
+            bigdata = JSON.parse(File.read("#{@libdir}blueprints/byappid.json",:external_encoding => 'utf-8',:internal_encoding => 'utf-8'))
             counted = {}
 
             sorted.each { |appid,cards|
@@ -90,8 +96,8 @@ module BadgeCommands
                   filename = persona
             end
 
-            "./#{filename}_badges.txt"
-            titles = JSON.parse(File.read("#{@libdir}/blueprints/appid_title.json",:external_encoding => 'utf-8',:internal_encoding => 'utf-8'))
+
+            titles = JSON.parse(File.read("#{@libdir}blueprints/appid_title.json",:external_encoding => 'utf-8',:internal_encoding => 'utf-8'))
             eachappidsets = eachappidsets.sort_by do |k,v|
               v
             end
