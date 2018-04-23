@@ -5,19 +5,16 @@ module TradeCommands
             raise "no account logged in, #{self} " if @loggedin == false
 
 
-            token = nil
-            if link.to_i == 0
-                  partner_raw = link.split('partner=',2)[1].split('&',2)[0]
-                  partner_steamid = partner_id_to_steam_id(partner_raw)
-                  token = link.split('token=', 2)[1]
-            else ## link is  steamid
-                  partner_steamid = link
+
+            partner_steamid,token = verify_profileid_or_trade_link_or_steamid(link)
+            if token == nil
                   verdict = verify_friendship(partner_steamid)
                   persona = verdict["accountname"]
                   if verdict["success"] == false
                         raise "#{partner_steamid} (#{persona}) is not in your friendlist, a trade link is required to send an offer to this account"
                   end
             end
+
 
 
             theirs = clean_items(they)
