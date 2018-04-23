@@ -1,7 +1,7 @@
 module LoginCommands
 
 ########################################################################################
-      def login
+      def login()
             data = pass_stamp()
             encrypted_password = data["password"]
             timestamp = data["timestamp"]
@@ -34,9 +34,7 @@ module LoginCommands
                   if response["success"] == true
                         repeater = true
                   elsif repeater == 3
-                        puts "Could not login"
-                        puts "exiting"
-                       exit
+                        raise "Login failed username: #{@username}, password: #{@password} tried 3 times"
                  else
                        puts "re-trying to login"
                        puts "sleeping for 6 seconds"
@@ -71,7 +69,18 @@ module LoginCommands
 
             cookie = Mechanize::Cookie.new :domain => 'steamcommunity.com', :name =>'sessionid', :value =>steampowered_sessionid, :path => '/'
             @session.cookie_jar << cookie
-            puts "logged-in with steamid: #{@steamid}"
+            @loggedin = true
+            @api_key = Nokogiri::HTML(@session.get("https://steamcommunity.com/dev/apikey").content).css('#bodyContents_ex').css('p').first.text.sub('Key: ','')
+
+            data = get_player_summaries(@steamid)
+            data.each { |element|
+                  if element["steamid"].to_s == @steamid.to_s
+                        @persona = element["personaname"]
+                  end
+            }
+            output "logged in as #{@persona}"
+            output "your steamid is #{@steamid}"
+            output "loaded API_KEY : #{@api_key}"
       end
 ########################################################################################
 

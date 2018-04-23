@@ -1,5 +1,16 @@
-module Abilites
+module MiscCommands
+
+
+
+
+
       ########################################################################################
+      def set_steamid(steamid)
+            @steamid = steamid
+      end
+
+
+
       def copy_session
             return @session
       end
@@ -45,6 +56,29 @@ module Abilites
             collect = last_bytes + first_bytes
             return collect.unpack('Q>')[0].to_s
       end
+      def output(message)
+            time = Time.new
+            add = time.strftime("%d-%m-%Y %H:%M:%S")
+            puts "#{time} :: #{message}"
+      end
+
 
 
 end
+
+module Util
+      def self.gem_libdir
+            require_relative 'meta/version.rb'
+            gem_name = 'steam-trade'
+            version = '0.0.5'
+           t = ["#{File.dirname(File.expand_path($0))}/#{Meta::GEM_NAME}.rb",
+                "#{Gem.dir}/gems/#{Meta::GEM_NAME}-#{Meta::VERSION}/lib/#{Meta::GEM_NAME}.rb"]
+               t.each {|i|
+                      return i.gsub("#{Meta::GEM_NAME}.rb", '') if File.readable?(i)
+                }
+               raise "both paths are invalid: #{t}, while getting gemlib directory"
+         end
+end
+
+
+puts Util.gem_libdir

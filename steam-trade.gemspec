@@ -2,16 +2,17 @@
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
+require 'meta/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "steam-trade"
-  spec.version       = '0.0.4'
+  spec.name          = Meta::GEM_NAME
+  spec.version       = Meta::VERSION
   spec.date             = '2018-04-21'
   spec.authors       = ["OmG3r"]
   spec.email         = ["adam.boulila@live.fr"]
-  spec.files            = Dir['lib/   *.rb'] + Dir['bin/*']
-  spec.summary       = %q{Manage steam trading offers. }
-  spec.description   = %q{Send steam trading offers, generate steam 2FA codes, confirm steam trade offers}
+  spec.files            = Dir['lib/   *.rb'] + Dir['bin/*'] + Dir['lib/meta/*rb'] + Dir['lib/blueprints/*json']
+  spec.summary       = %q{A steambot library to manage steam trading offers.}
+  spec.description   = %q{Send steam trading offers, generate steam 2FA codes, confirm steam trade offers, get inventories}
   spec.homepage      = "https://github.com/OmG3r/steam-trade/"
   spec.license       = "MIT"
 

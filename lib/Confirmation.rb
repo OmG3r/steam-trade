@@ -1,8 +1,8 @@
-require 'Guard.rb'
+
 
 
 module ConfirmationCommands
-      include GuardCommands
+
 
 
 
@@ -54,8 +54,7 @@ module ConfirmationCommands
             response = @session.get('https://steamcommunity.com/mobileconf/conf', params, no, headers)
             html = response.content
             if html.include?('Steam Guard Mobile Authenticator is providing incorrect Steam Guard codes.')
-                  puts "invalid steammguard"
-                  exit
+                  raise("identity secret: #{@identity_secret} is incorrect")
             end
             return html
       end
@@ -71,8 +70,7 @@ module ConfirmationCommands
                         return confirmhash
                   end
             }
-            puts "did not find a confirmation"
-            exit
+            raise("Could not find the offer to confirm")
       end
 
       def fetch_confirmation_details_page(hash) ##eigth
