@@ -63,7 +63,7 @@ class Handler
             float = 5.5
             if timer.class == integer.class || timer.class == float.class
                   @inventory_validity = timer
-                  output "inventory validity periode succesfully added"
+                  output "inventory validity set to #{timer}"
             end
             if @inventory_cache == false
                   @inventory_cache = true
