@@ -18,11 +18,9 @@ module TradeCommands
 
 
             theirs = clean_items(they)
-            print theirs
-            puts ""
+
             me = clean_items(mine)
-            print mine
-            puts ""
+
 
             sessionid = sessionid_cookie()
 
