@@ -2,11 +2,11 @@ module PlayerCommands
 
       def get_player_summaries(*steamids)
             if steamids.length == 0
-                  puts "no steamids supplied"
+                  raise "no steamids supplied"
                   return {'success' => false}
             end
             if @api_key == nil
-                  puts "no api_key loaded"
+                  output "no api_key loaded"
                   return {'success' => false}
             end
             write = steamids.join(',')
@@ -16,7 +16,7 @@ module PlayerCommands
 
       def get_friends(steamid)
             if @api_key == nil
-                  puts "no api_key loaded"
+                  output "no api_key loaded"
                   return {'success' => false}
             end
             html = @session.get("http://api.steampowered.com/ISteamUser/GetFriendList/v0001/?key=#{@api_key}&steamid=#{@steamid}&relationship=friend").content
