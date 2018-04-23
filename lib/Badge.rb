@@ -1,6 +1,6 @@
 module BadgeCommands
 
-      def sets_count(steamid = @steamid, use_nonmarketable = false)
+      def sets_count(steamid = @steamid, use_nonmarketable = true)
 
 
             if steamid == nil
