@@ -175,7 +175,7 @@ puts logged_without_shared_secret.fa('shared_secret') ## will give a random code
 ###
 nonlogged = Handler.new()
 puts nonlogged.fa() # will not work
-puts nonlogged.fa() # will give a random code
+puts logged.fa() # will give a random code
 
 ```
 
