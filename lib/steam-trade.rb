@@ -45,7 +45,7 @@ class Handler
 
             @inventory_cache = false
             @libdir = Util.gem_libdir
-
+            output "Handler started"
             if username != nil && password != nil
                   login()
             end

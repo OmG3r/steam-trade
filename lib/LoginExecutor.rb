@@ -30,7 +30,7 @@ module LoginCommands
 
                   login = @session.post('https://store.steampowered.com/login/dologin', send )
                   response = JSON::parse(login.body)
-
+                  output "logging-in"
                   if response["success"] == true
                         repeater = true
                   elsif repeater == 3
