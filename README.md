@@ -4,8 +4,15 @@ This gem simplifes/allows sending steam trade offers programmatically.
 
 this gem is primarly for trading cards, tho can be used to CS:GO and other games inventories
 # Table of content
-- [Installation](https://github.com/OmG3r/steam-trade/#installation)
-- [Usage & Examples](https://github.com/OmG3r/steam-trade/#usage)
+
+- [Installation](#installation)
+- [Usage & Examples](#usage)
+  - [Logging-in](#logging-in)
+  - [Getting someone's inventory](#getting-someones-inventory)
+  - [Sending a trade offer](#sending-a-trade-offer)
+  - [Counting badges owned](#counting-badges-owned)
+  - [2FA codes](#2fa-codes)
+  
 ## Installation
 in your commandline :
 
