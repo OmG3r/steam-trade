@@ -40,7 +40,7 @@ puts account.fa('v3dWNq2Ncutc7RelwRVXswT8CJX=v3dWNq2Ncutc7WelwRVXswT8CJk=') => r
 ```
 ## Getting someone's inventory
 #### `normal_get_inventory('steamid','inventoryappid')`
-- `steamid` is the target's steamid
+- `steamid` is the target's steamID, or profileID, or trade link
 - `inventoryappid` is the inventory type you want to load, `ex : normal inventory(the one which holds trading cards), it's is 753`
 - if you call `normal_get_inventory()` with no params, it will be default use the current logged-in account `steamid`, `inventoryappid = 753`
 
