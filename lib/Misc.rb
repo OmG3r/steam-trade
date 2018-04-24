@@ -7,45 +7,25 @@ module MiscCommands
 
       ########################################################################################
       def set_steamid(steamid)
-            @steamid = steamid
+            if @loggedin == false
+                  @steamid,token = verify_profileid_or_trade_link_or_steamid(steamid)
+                  output"steamID set to #{@steamid}"
+            else
+                  raise "editing steamID while logged in will cause malfunctions"
+            end
       end
 
 
 
-      def copy_session
+      def copy_session()
             return @session
       end
 ########################################################################################
-      def overwrite_session(new_session)
-            if new_session.class == Mechanize
-                  @session = new_session
-            end
+      def use_session()
+            @session
       end
 ########################################################################################
-      def sessionid_cookie()
-            value = nil
-            begin
-                  value = @session.cookie_jar.jar["steamcommunity.com"]["/"]["sessionid"].value
-            rescue
-                  value = nil
-            end
-            if value == nil
-                  begin
-                        @session.cookie_jar.jar["store.steampowered.com"]["/"]["sessionid"].value
-                  rescue
-                        value = nil
-                  end
-            end
 
-            if value == nil
-                  @session.cookies.each { |c|
-                        if c.name == "sessionid"
-                               value = c.value
-                         end
-                  }
-            end
-            return value
-      end
 
 
 
@@ -87,7 +67,30 @@ module MiscCommands
             end
       end
 
+      def sessionid_cookie()
+            value = nil
+            begin
+                  value = @session.cookie_jar.jar["steamcommunity.com"]["/"]["sessionid"].value
+            rescue
+                  value = nil
+            end
+            if value == nil
+                  begin
+                        @session.cookie_jar.jar["store.steampowered.com"]["/"]["sessionid"].value
+                  rescue
+                        value = nil
+                  end
+            end
 
+            if value == nil
+                  @session.cookies.each { |c|
+                        if c.name == "sessionid"
+                               value = c.value
+                         end
+                  }
+            end
+            return value
+      end
 
 
 
