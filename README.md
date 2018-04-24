@@ -1,4 +1,4 @@
-# steam-trade V0.0.8
+# steam-trade V0.0.9
 
 This gem simplifes/allows sending steam trade offers programmatically.
 
@@ -12,7 +12,7 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
   - [Sending a trade offer](#sending-a-trade-offer)
   - [Counting badges owned](#counting-badges-owned)
   - [2FA codes](#2fa-codes)
-  
+
 ## Installation
 in your commandline :
 
