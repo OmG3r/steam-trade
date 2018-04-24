@@ -150,7 +150,7 @@ account.send_offer(myarray,theirarray,"https://steamcommunity.com/tradeoffer/new
 #### `sets_count(target,non_marketable)`
 **this command does not count foil badges (only normal trading cards)**
 - `target` can be a steamID, a profileID or a trade link
-- `non_marketable` this is a switch to count marketable cards(defaults to true if not specified)
+- `non_marketable` this is a switch to count **non**-marketable trading cards(defaults to **true** if not specified)
 - a .txt will be created from this command to read the badges
 - this returns a hash  `{'sets' => appsets, 'appxsets' => setsowned, 'totalsets' => numberofsets, 'totalcards' => total_non_foil, 'marketable' => true}`
   - `'sets'` is a hash with game appids as keys and each card and number of copies owned of each card `{'appid1' => {'card1' => 5,'card2' => 3, ... 'cardN' => Z},{'appid1' => {'card1' => 0,'card2' => 2, ... 'cardN' => K} }`
