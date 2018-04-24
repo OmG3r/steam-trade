@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{A steambot library to manage steam trading offers.}
   spec.description   = %q{Send steam trading offers, generate steam 2FA codes, confirm steam trade offers, get inventories,count badges}
   spec.homepage      = "https://github.com/OmG3r/steam-trade/"
-  spec.license       = "GPL-3.0-only"
+  spec.license       = "GPL-3.0"
 
 
 
