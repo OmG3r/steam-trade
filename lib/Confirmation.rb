@@ -47,9 +47,7 @@ module ConfirmationCommands
             tag = 'conf'
             params =   create_confirmation_params(tag) ## FOURTH FIISHED
             headers = {'X-Requested-With' => 'com.valvesoftware.android.steam.community'}
-            #@session.pre_connect_hooks << lambda do |agent, request|
-            #      request['X-Requested-With'] = 'com.valvesoftware.android.steam.community'
-             #end
+
             no = nil
             response = @session.get('https://steamcommunity.com/mobileconf/conf', params, no, headers)
             html = response.content
