@@ -3,6 +3,9 @@
 This gem simplifes/allows sending steam trade offers programmatically.
 
 this gem is primarly for trading cards, tho can be used to CS:GO and other games inventories
+# Table of content
+- [Installation](https://github.com/OmG3r/steam-trade/#installation)
+- [Usage & Examples](https://github.com/OmG3r/steam-trade/#usage)
 ## Installation
 in your commandline :
 
