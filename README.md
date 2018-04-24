@@ -87,7 +87,20 @@ each item is a hash which contains information about the item in the form of `{"
 - accepts a parameter `timer` which defaults to `timer = 120`, this parameter is the difference between the save file was created and the moment it was checked (upong trying to retrieve the inventory).
 
 - this switch is useful if you are getting a "static" inventory or testing your code.
+```ruby
+require 'steam-trade'
 
+logged = Handler.new('username','password','shared_secret')
+logged.mobile_info('identity_secret')
+logged.set_inventory_cache(150)
+
+
+partner_inventory = loggedlogged.normal_get_inventory('CardExchange') #this will save CardExchange's inventory to a local file and return the inventory
+
+partner_inventory = loggedlogged.normal_get_inventory('CardExchange') # this will load the locally saved file
+
+
+```
 
 **IMPORTANT**: `normal_get_inventory()` will load the whole target inventory, for each **5k** of items, you are adding **~40MB** to your memory and of course will affect performance of the code and the computer
 ## Sending a trade offer
