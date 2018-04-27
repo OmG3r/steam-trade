@@ -27,22 +27,34 @@ module BadgeCommands
                         targetname = ''
                   end
             }
-
-            items = normal_get_inventory(steamid)
+            hash = raw_get_inventory(steamid)
             sorted = {}
-            items.each { |asset|
+            classxinstance = {}
+
+            hash["descriptions"].delete_if {|desc|
+                  conc = desc["classid"] + "_" +  desc["instanceid"]
+                  classxinstance[conc] = desc
+                  true
+            }
+
+            #GC.start
+
+
+            hash["assets"].each { |asset|
+                  identity = asset["classid"] + "_" + asset["instanceid"]
+                  assetdesc = classxinstance[identity]
                   if use_nonmarketable == false
-                        if asset["marketable"] == 0 || asset["tags"][-1]["localized_tag_name"] != "Trading Card" || asset["tags"][-2]["localized_tag_name"] == "Foil"
+                        if assetdesc["marketable"] == 0 || assetdesc["tags"][-1]["localized_tag_name"] != "Trading Card" || assetdesc["tags"][-2]["localized_tag_name"] == "Foil"
                               next
                         end
                   else
-                        if  asset["tags"][-1]["localized_tag_name"] != "Trading Card" || asset["tags"][-2]["localized_tag_name"] == "Foil"
+                        if  assetdesc["tags"][-1]["localized_tag_name"] != "Trading Card" ||assetdesc["tags"][-2]["localized_tag_name"] == "Foil"
                               next
                         end
                   end
 
-                  name = asset["name"].sub(" (Trading Card)", "")
-                  appid = asset["market_fee_app"].to_s
+                  name = assetdesc["name"].sub(" (Trading Card)", "")
+                  appid =assetdesc["market_fee_app"].to_s
                   if sorted.has_key?(appid) == true
                         if sorted[appid].has_key?(name) == true
                               sorted[appid][name] = sorted[appid][name] + 1
@@ -106,7 +118,7 @@ module BadgeCommands
                   File.truncate("./#{filename}_badges.txt", 0)
             rescue
             end
-
+            output "Writing the badges to #{filename}_badges.txt "
             File.open("./#{filename}_badges.txt",'a+:UTF-8') {|f| f.puts "for #{persona}(#{steamid})"}
             if use_nonmarketable == false
                   File.open("./#{filename}_badges.txt",'a+:UTF-8') {|f| f.puts "total non-foil trading cards #{total_non_foil}"}
