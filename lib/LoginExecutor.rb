@@ -36,7 +36,7 @@ module LoginCommands
                   elsif repeater == 3
                         raise "Login failed username: #{@username}, password: #{@password}, shared_scret: #{@secret} tried 3 times"
                  else
-                       print repsonse
+                       print response
                        puts "re-trying to login"
                        puts "sleeping for 6 seconds"
                        sleep(6)
