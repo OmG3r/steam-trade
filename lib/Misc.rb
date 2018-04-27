@@ -33,7 +33,6 @@ module MiscCommands
 
 
 
-      private
       def partner_id_to_steam_id(account_id)
             unknown_constant = 17825793 # or 0x1100001 idk wtf is this but ....
             first_bytes = [account_id.to_i].pack('i>')
@@ -41,10 +40,11 @@ module MiscCommands
             collect = last_bytes + first_bytes
             return collect.unpack('Q>')[0].to_s
       end
+      private
       def output(message)
             time = Time.new
             add = time.strftime("%d-%m-%Y %H:%M:%S")
-            puts "#{time} :: #{message}"
+            puts "#{time} :: #{message}" if @messages == true
       end
 
       def verify_profileid_or_trade_link_or_steamid(steamid)
@@ -92,7 +92,20 @@ module MiscCommands
             return value
       end
 
-
+      def api_call(request_methode, interface, api_methode ,version,params = nil)
+            url = ["https://api.steampowered.com","#{interface}", "#{api_methode}", "#{version}"].join('/')
+            if request_methode.downcase == "get"
+                  response = @session.get(url, params)
+            elsif request_methode.downcase == "post"
+                  response = @session.get(url,params)
+            else
+                  raise "invalid request methode : #{request_methode}"
+            end
+            if response.content.include?("Access is denied")
+                  raise "invalid API_key"
+            end
+            return response.content
+      end
 
 
 end

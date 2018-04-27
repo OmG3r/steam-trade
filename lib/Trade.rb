@@ -59,7 +59,7 @@ module TradeCommands
                   {'Referer' =>  'https://steamcommunity.com/tradeoffer/new', 'Origin' => 'https://steamcommunity.com'}
             )
             response = JSON.parse(send.body)
-            puts "trade offer sent ID:: " + response["tradeofferid"] + " to #{persona}"
+            output "trade offer sent ID:: " + response["tradeofferid"] + " to #{persona}"
             if response["needs_mobile_confirmation"] == true
                   if @identity_secret != nil && @steamid != nil
                         responsehash = response.merge(send_trade_allow_request(response["tradeofferid"]))
@@ -71,6 +71,29 @@ module TradeCommands
             end
 
       end
+
+
+
+      def get_trade_offers()
+            params = {'key'=> @api_key,
+                              'get_sent_offers'=> 1,
+                              'get_received_offers'=> 1,
+                              'get_descriptions'=> 1,
+                              'language'=> 'english',
+                              'active_only'=> 1,
+                              'historical_only'=> 0,
+                              'time_historical_cutoff'=> ''}
+                              response = api_call('GET', 'IEconService', 'GetTradeOffers', 'v1', params).json()
+      end
+
+
+
+
+
+
+
+
+
       private
 
       def verify_friendship(steamid)
