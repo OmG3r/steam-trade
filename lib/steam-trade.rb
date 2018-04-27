@@ -6,15 +6,16 @@ require 'open-uri'
 require 'thread'
 
 
-require_relative 'LoginExecutor.rb'
-require_relative 'Misc.rb'
-require_relative 'Trade.rb'
-require_relative 'Confirmation.rb'
-require_relative 'Trade.rb'
-require_relative 'Inventory.rb'
-require_relative 'Badge.rb'
-require_relative 'Guard.rb'
-require_relative 'Playerinfo.rb'
+require_relative './LoginExecutor.rb'
+require_relative './Misc.rb'
+require_relative './Trade.rb'
+require_relative './Confirmation.rb'
+require_relative './Trade.rb'
+require_relative './Inventory.rb'
+require_relative './Badge.rb'
+require_relative './Guard.rb'
+require_relative './Playerinfo.rb'
+require_relative './IEconService.rb'
 
 class Handler
       include MiscCommands
@@ -26,6 +27,7 @@ class Handler
       include BadgeCommands
       include GuardCommands
       include PlayerCommands
+      include TradeAPI
 
       def initialize(username = nil ,password = nil,secret = nil)
             @loggedin = false # will be set to true once we login
@@ -45,7 +47,8 @@ class Handler
 
             @inventory_cache = false
             @libdir = Util.gem_libdir
-            output "Handler started"
+            @messages = true
+            output "Handler started for #{@username}"
             if username != nil && password != nil
                   login()
             end
@@ -76,6 +79,16 @@ class Handler
 
       def set_api_key(api_key)
             @api_key = api_key
+      end
+
+      def toggle_messages()
+            if @messages == true
+                 output "messages are now disabled"
+                 @messages = false
+           else
+                 @messages = true
+                 output "messages are now enabled"
+           end
       end
 
 end
