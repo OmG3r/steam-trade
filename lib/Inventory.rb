@@ -45,7 +45,6 @@ module InventoryCommands
                   last_id = received['new_last_id']
                   items = items + received['assets']
                   output "loaded #{items.length}"
-                  sleep(2) if last_id != false
             end
 
             output "total loaded #{items.length} asset"
@@ -154,7 +153,6 @@ module InventoryCommands
                   hash["assets"] = hash["assets"] + received['assets']
                   hash["descriptions"] = hash["descriptions"] + received["descriptions"]
                   output "loaded #{hash["assets"].length}"
-                  sleep(2) if last_id != false
             end
 
             output "total loaded #{hash["assets"].length} asset"
@@ -178,7 +176,7 @@ module InventoryCommands
       def get_inventory_chunk_normal_way(appid,context,steamid,last_id)
 
 
-                  html = open("https://steamcommunity.com/inventory/#{steamid}/#{appid}/#{context}?start_assetid=#{last_id}&count=5000").read
+                  html = @session.get("https://steamcommunity.com/inventory/#{steamid}/#{appid}/#{context}?start_assetid=#{last_id}&count=5000").content
 
                   get = JSON.parse(html)
                   raise "something totally unexpected happened while getting inventory with appid #{appid} of steamid #{steamid} with contextid #{context}" if get.key?("error") == true
@@ -224,7 +222,7 @@ module InventoryCommands
       def get_inventory_chunk_raw_way(appid,context,steamid,last_id,trim)
 
 
-            html = open("https://steamcommunity.com/inventory/#{steamid}/#{appid}/#{context}?start_assetid=#{last_id}&count=5000").read
+            html = @session.get("https://steamcommunity.com/inventory/#{steamid}/#{appid}/#{context}?start_assetid=#{last_id}&count=5000").content
 
             get = JSON.parse(html)
             raise "something totally unexpected happened while getting inventory with appid #{appid} of steamid #{steamid} with contextid #{context}" if get.key?("error") == true
