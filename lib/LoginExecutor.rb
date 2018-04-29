@@ -1,6 +1,7 @@
 module LoginCommands
 
 ########################################################################################
+     private
       def login()
             data = pass_stamp()
             encrypted_password = data["password"]
@@ -8,7 +9,7 @@ module LoginCommands
             repeater = 0
             until repeater == true
                   if @secret != nil
-                        guardcode = fa()
+                        guardcode = fa(@secret,@time_difference)
                   else
                         puts "please write your 2FA code"
                         guardcode = gets.chomp
@@ -87,7 +88,6 @@ module LoginCommands
 
 
 ########################################################################################
-      private
       def pass_stamp()
             response = @session.post('https://store.steampowered.com/login/getrsakey/', {'username' => @username})
 
