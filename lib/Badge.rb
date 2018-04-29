@@ -114,35 +114,30 @@ module BadgeCommands
               v
             end
             eachappidsets.reverse!
-            begin
-                  File.truncate("./#{filename}_badges.txt", 0)
-            rescue
-            end
             output "Writing the badges to #{filename}_badges.txt "
-            File.open("./#{filename}_badges.txt",'a+:UTF-8') {|f| f.puts "for #{persona}(#{steamid})"}
+            text = []
+            text << "for #{persona}(#{steamid})"
             if use_nonmarketable == false
-                  File.open("./#{filename}_badges.txt",'a+:UTF-8') {|f| f.puts "total non-foil trading cards #{total_non_foil}"}
-                  File.open("./#{filename}_badges.txt",'a+:UTF-8') {|f| f.puts "only marketable cards are counted"}
+                  text << "only marketable cards are counted"
+                  text << "total non-foil trading cards #{total_non_foil}"
             else
-                  File.open("./#{filename}_badges.txt",'a+:UTF-8') {|f| f.puts "total non-foil trading cards #{total_non_foil}"}
-                  File.open("./#{filename}_badges.txt",'a+:UTF-8') {|f| f.puts "all cards counted including non-marketable"}
+                  text << "total non-foil trading cards #{total_non_foil}"
+                  text << "all cards counted including non-marketable"
             end
 
 
-            File.open("./#{filename}_badges.txt",'a+:UTF-8') {|f| f.puts "total sets in target account #{totalsets}"}
-            File.open("./#{filename}_badges.txt",'a+:UTF-8') {|f| f.puts ""}
-            File.open("./#{filename}_badges.txt",'a+:UTF-8') {|f| f.puts ""}
-
-
+            text << "total sets in target account #{totalsets}"
+            text << ""
+            text << ""
             eachappidsets.each { |appid, sets|
-                  File.open("./#{filename}_badges.txt",'a+:UTF-8') {|f| f.puts "#{titles[appid]}, sets = #{sets}, appid = #{appid}"}
+                  text << "             #{titles[appid]}, sets = #{sets}, appid = #{appid}"
                   hashofcards[appid].each { |cardname, owned|
-                        File.open("./#{filename}_badges.txt",'a+:UTF-8') {|f| f.puts "#{cardname} xxx #{owned}"}
+                        text << "#{cardname} xxx #{owned}"
                   }
-                  File.open("./#{filename}_badges.txt",'a+:UTF-8') {|f| f.puts ""}
-                  File.open("./#{filename}_badges.txt",'a+:UTF-8') {|f| f.puts ""}
+                  text << ""
+                  text << ""
             }
-
+            File.open("./#{filename}_badges.txt",'w:UTF-8') {|f| f.puts text}
             output "badges.txt has been created"
       end
 
