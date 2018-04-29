@@ -44,7 +44,7 @@ module MiscCommands
       def output(message)
             time = Time.new
             add = time.strftime("%d-%m-%Y %H:%M:%S")
-            puts "#{time} :: #{message}" if @messages == true
+            puts "#{add} :: #{message}" if @messages == true
       end
 
       def verify_profileid_or_trade_link_or_steamid(steamid)
