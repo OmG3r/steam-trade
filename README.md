@@ -1,4 +1,5 @@
-# steam-trade V0.0.9
+# steam-trade V0.1.1
+Please check constantly for updates cause i'm still making this gem.
 
 This gem simplifes/allows sending steam trade offers programmatically.
 
@@ -8,10 +9,26 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
 - [Installation](#installation)
 - [Usage & Examples](#usage)
   - [Logging-in](#logging-in)
+    - [Hander.new() (this is how you login)](#handlernewusername-passwordshared_secret)
+    - [mobile_info()](#mobile_infoidentity_secret)
   - [Getting someone's inventory](#getting-someones-inventory)
+    - [normal_get_inventory()](#normal_get_inventorysteamidinventoryappid)
+    - [raw_get_inventory()](#raw_get_inventorytargetinventoryappidtrimming)
+    - [set_inventory_cache()](#set_inventory_cache)
   - [Sending a trade offer](#sending-a-trade-offer)
+    - [send_offer()](#send_offermyarraytheirarraytrade_offer_linkmessage)
+  - [Handling Trade Offers](#handling-trade-offers)
+    - [set_api_key()](#set_api_keyapi_key)
+    - [get_trade_offers()](#get_trade_offerstime)
+    - [get_trade_offer()](#get_trade_offertrade_offer_id)
+    - [accept_trade_offer()](#accept_trade_offertrade_offer_id)
+    - [decline_trade_offer()](#decline_trade_offertrade_offer_id)
+    - [cancel_trade_offer()](#cancel_trade_offertrade_offer_id)
   - [Counting badges owned](#counting-badges-owned)
+    - [sets_count()](#sets_counttargetnon_marketable)
   - [2FA codes](#2fa-codes)
+    - [fa()](#fashared_secret)
+  - [More commands](#more-commands)
 
 ## Installation
 in your commandline :
@@ -24,17 +41,13 @@ First you need to require the gem:
 require 'steam-trade'
 ```
 ## Logging-in
+#### `Handler.new(username, password,shared_secret)`
 then you need to login and optionally set your shared_secret and identity_secret:
 - `shared_secret` is used to generate steam authentication codes so you won't have to write them manually each time you login.
-- `identity_secret` is used to confirm trade offers automatically.
 ```ruby
 require 'steam-trade'
 
 account = Handler.new('username','password','shared_secret') # share secret is optional
-#username and password are required, shared_secret is optional
-
-account.mobile_info('identity_secret')
-#identity_secret is required
 
 ##########
 account = Handler.new('username') #this of course counts as non logged in
@@ -48,7 +61,18 @@ account = Handler.new()
 puts account.fa('v3dWNq2Ncutc7RelwRVXswT8CJX=v3dWNq2Ncutc7WelwRVXswT8CJk=') => random code
 
 ```
+#### `mobile_info(identity_secret)`
+- `identity_secret` is your account's identity secret (try using google if you don't know what this is).
+- `identity_secret` is used to automatically confirm trade offers.
+```ruby
+require 'steam-trade'
+
+account = Handler.new('username','password','shared_secret')
+account.mobile_info('identity_secret')
+```
+
 ## Getting someone's inventory
+you might want to read this [guide](https://dev.doctormckay.com/topic/332-identifying-steam-items/)
 #### `normal_get_inventory('steamid','inventoryappid')`
 - `steamid` is the target's steamID, or profileID, or trade link
 - `inventoryappid` is the inventory type you want to load, `ex : normal inventory(the one which holds trading cards), it's is 753`
@@ -89,6 +113,46 @@ each item is a hash which contains information about the item in the form of `{"
 `market_fee_app` key gives you the appid of the game's app (for trading cards), for other items technically `inventoryappid` is the games appid.
 
 `name` key gives you the item name.
+#### `raw_get_inventory(target,inventoryappid,trimming)`
+**IMPORTANT**: this command efficiency is better than `normal_get_inventory`, therefore i **recommend**  using this one.
+- `target` is a steamID/profileID/trade link
+- `inventoryappid` is the inventory type you want to load, `ex : normal inventory(the one which holds trading cards), it's is 753`
+- `trimming`, defaults to `true` this will remove images link and steam-server-side related informations from the descriptions hash, drastically reducing the size of data received.
+
+This command will return a hash nearly identitical to the one received from steam the hash will have 2 keys `assets` and `descriptions`:
+- `assets` has an array as value, identical to steam's [(example)](https://steamcommunity.com/inventory/76561198044170935/753/6?start_assetid=0&count=100)
+- `descriptions` has an array as a value identical to steam's [(example)](https://steamcommunity.com/inventory/76561198044170935/753/6?start_assetid=0&count=100)
+
+```ruby
+require 'steam-trade'
+logged = Handler.new('username','password','shared_secret')
+inv = logged.raw_get_inventory() #works
+inv = logged.raw_get_inventory(false) # returns non trimmed
+inv = logged.raw_get_inventory(440) #works
+inv = logged.raw_get_inventory(76561198044170935,false) #works
+inv = logged.raw_get_inventory(76561198044170935,440) # works
+
+print inv['assets'] will print all the assets
+print inv['descriptions'] will print all the descriptions
+
+### how to accurately use this
+
+class_instance = {}
+## map all the items
+inv['descriptions'].each { |desc|
+  identifier = desc['classid'] + '_' + desc['instanceid']
+  class_instance[identifier] = desc
+}
+
+## identify your items
+
+inv['assets'].each { |asset|
+  identifier = asset['classid'] + '_' + asset['instanceid']
+  puts class_instance[identifier] this will output the item's description
+}
+
+```
+
 #### `set_inventory_cache()`
 `set_inventory_cache()` is:
 
@@ -146,6 +210,117 @@ account.send_offer(myarray,theirarray,'76561198370420964',message)
 account.send_offer(myarray,theirarray,"https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt",message)
 
 ```
+## Handling Trade Offers
+you might want to read [Steam Trading API](https://developer.valvesoftware.com/wiki/Steam_Web_API/IEconService)
+
+**ALL OF THE COMMANDS BELOW REQUIRE AN API_KEY**
+
+#### `set_api_key(API_KEY)`
+**NOTE**:If you are using a **logged in** Handler there is no need to set the API_KEY.
+- `API_KEY` is your apikey, you can get that from [here](https://steamcommunity.com/dev/apikey).
+```ruby
+require 'steam-trade'
+acc = Handler.new()
+trade_offers = acc.get_trade_offers() # will raise an exception
+acc.set_api_key('mykey')
+trade_offers = acc.get_trade_offers() # after setting an API_KEY this will succeed
+```
+#### `get_trade_offers(time)`
+- `time` is the moment from which you want to get updates (explained in the example)
+this will return a hash with `trade_offers_sent`, `trade_offers_received`, `descriptions` as keys.
+`descriptions` includes the descriptions of all items returned from `trade_offers_sent` or `trade_offers_received`
+
+```ruby
+require 'steam-trade'
+logged = Handler.new('username','password','shared_secret')
+logged.mobile_info('identity_secret')
+
+time = '' # this is the initial check for offers so we want them all
+polling = Thread.new(logged) { |logged|
+  loop do
+    offers = logged.get_trade_offers(time)
+    time = Time.new.to_i # we save the time of the last check
+    next if offers['trade_offers_received'] == nil # do nothing, if there is no trades
+    puts offers['trade_offers_received'] # puts the trades
+    sleep(15) # make sure not to spam steam's server or they will block list your IP for a period of time therefore you can't make requests
+  end
+}
+```
+#### `get_trade_offer(trade_offer_id)`
+gets more information about a specific trade offer
+- `trade_offer_id` is the id of the offer you want to confirm (you can get the id using [this](#get_trade_offerstime) to get the offerID
+
+have no example how to actually use this cause `get_trade_offers(time)` is probably better
+
+#### `accept_trade_offer(trade_offer_id)`
+- `trade_offer_id` is the id of the offer you want to confirm (you can get the id using [this](#get_trade_offerstime) to get the offerID
+```ruby
+require 'steam-trade'
+logged = Handler.new('username','password','shared_secret')
+logged.mobile_info('identity_secret')
+
+time = '' # this is the initial check for offers so we want them all
+polling = Thread.new(logged) { |logged|
+  loop do
+    offers = logged.get_trade_offers(time)
+    time = Time.new.to_i # we save the time of the last check
+    next if offers['trade_offers_received'] == nil # do nothing, if there is no trades
+    offers['trade_offers_received'].each { |trade|
+      if trade['accountid_other'].to_i == 83905207 ## this will accept all trade received from 83905207 (Steam32 ID)
+        logged.accept_trade_offer(trade['tradeofferid']) # to accept the trade
+      end
+    }
+    sleep(15) # make sure not to spam steam's server or they will block list your IP for a period of time therefore you can't make requests
+  end
+}
+```
+#### `decline_trade_offer(trade_offer_id)`
+this declines a trade offer you **RECEIVED**
+- `trade_offer_id` is the id of the offer you want to confirm (you can get the id using [this](#get_trade_offerstime) to get the offerID
+
+```ruby
+require 'steam-trade'
+logged = Handler.new('username','password','shared_secret')
+logged.mobile_info('identity_secret')
+
+time = '' # this is the initial check for offers so we want them all
+polling = Thread.new(logged) { |logged|
+  loop do
+    offers = logged.get_trade_offers(time)
+    time = Time.new.to_i # we save the time of the last check
+    next if offers['trade_offers_received'] == nil # do nothing, if there is no trades
+    offers['trade_offers_received'].each { |trade| # we need to check received offers to use 'decline'
+      if trade['accountid_other'].to_i != 83905207 ## notice the '!='
+        logged.decline_trade_offer(trade['tradeofferid']) # decline the trade
+      end
+    }
+    sleep(15) # make sure not to spam steam's server or they will block list your IP for a period of time therefore you can't make requests
+  end
+}
+```
+#### `cancel_trade_offer(trade_offer_id)`
+this cancels a trade offer you **SENT**
+- `trade_offer_id` is the id of the offer you want to confirm (you can get the id using [this](#get_trade_offerstime) to get the offerID
+```ruby
+require 'steam-trade'
+logged = Handler.new('username','password','shared_secret')
+logged.mobile_info('identity_secret')
+
+time = '' # this is the initial check for offers so we want them all
+polling = Thread.new(logged) { |logged|
+  loop do
+    offers = logged.get_trade_offers(time)
+    time = Time.new.to_i # we save the time of the last check
+    next if offers['trade_offers_sent'] == nil # do nothing, if there is no trades
+    offers['trade_offers_sent'].each { |trade| # we need to check sentoffers to use 'cancel'
+      if trade['accountid_other'].to_i != 83905207 ## notice the '!='
+        logged.cancel_trade_offer(trade['tradeofferid']) # cancel the trade
+      end
+    }
+    sleep(15) # make sure not to spam steam's server or they will block list your IP for a period of time therefore you can't make requests
+  end
+}
+```
 ## Counting badges owned
 #### `sets_count(target,non_marketable)`
 **this command does not count foil badges (only normal trading cards)**
@@ -201,7 +376,8 @@ puts nonlogged.fa() # will not work
 puts logged.fa() # will give a random code
 
 ```
-
+## More commands
+you can find more non-vital commands in the [wiki](https://github.com/OmG3r/steam-trade/wiki)
 ## License
 
 The gem is available as open source under the terms of the [GNU GPLV3](https://github.com/OmG3r/steam-trade/blob/master/LICENSE).
