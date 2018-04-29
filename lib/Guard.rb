@@ -4,10 +4,10 @@ module GuardCommands
 
 
 
-      def fa(shared_secret = @secret)
+      def fa(shared_secret = @secret,time_difference = 0)
             raise "No shared_secret given" if shared_secret == nil # cause upon initialization @secret = nil
-            timestamp = Time.new.to_i
-            math = timestamp / 30
+            timestamp = Time.new.to_i + time_difference
+            math = timestamp.to_i / 30
             math = math.to_i
             time_buffer =[math].pack('Q>')
 
