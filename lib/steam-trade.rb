@@ -29,12 +29,26 @@ class Handler
       include PlayerCommands
       include TradeAPI
 
-      def initialize(username = nil ,password = nil,secret = nil)
+      def initialize(username = nil ,password = nil,*params)
+           raise "can only take 4 params, given #{params.length}" if params.length > 2
             @loggedin = false # will be set to true once we login
 
             @username = username
             @password = password
-            @secret = secret
+            @secret = nil
+            @time_difference = 0
+
+
+            if params.length == 2
+                 @secret = params[0] if params[0].class == String
+                 @time_difference = params[1] if params[1].class == Integer
+            elsif params.length == 1 && params[0].class == String
+                 @secret = params[0]
+                 @time_difference = 0
+            elsif params.length == 1 && params[0].class == Integer
+                 @secret = nil
+                 @time_difference = params[0]
+            end
 
             @steamid = nil # will be initialized once you login and can be initialized with mobile_info
             @identity_secret = nil # can and should be initialized using mobile_info
@@ -43,6 +57,7 @@ class Handler
             @session = Mechanize.new { |agent| # the session which will hold your cookies to communicate with steam
                   agent.user_agent_alias = 'Windows Mozilla'
                   agent.follow_meta_refresh = true
+                  agent.history_added = Proc.new {sleep 2}
             }
 
             @inventory_cache = false
