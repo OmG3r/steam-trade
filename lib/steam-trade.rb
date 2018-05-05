@@ -57,7 +57,7 @@ class Handler
             @session = Mechanize.new { |agent| # the session which will hold your cookies to communicate with steam
                   agent.user_agent_alias = 'Windows Mozilla'
                   agent.follow_meta_refresh = true
-                  agent.history_added = Proc.new {sleep 2}
+                  agent.history_added = Proc.new {sleep 1}
             }
 
             @inventory_cache = false
