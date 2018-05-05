@@ -1,15 +1,24 @@
-# steam-trade V0.1.1
+# steam-trade V0.1.3
 Please check constantly for updates cause i'm still making this gem.
 
 This gem simplifes/allows sending steam trade offers programmatically.
 
 this gem is primarly for trading cards, tho can be used to CS:GO and other games inventories
+
+# Changelog
+```
+0.1.2:
+- normal_get_inventory() and raw_get_inventory() now uses Mechanize instead of open-uri.
+- Handler.new() and fa() now accepts a time difference parameter to adjust your 2FA codes.
+- sets_count() now writes the txt file faster.
+- Mechanize session associated with the account now has a 2 second cooldown before each request to avoid spamming steam servers and resulting in a ban.
+```
 # Table of content
 
 - [Installation](#installation)
 - [Usage & Examples](#usage)
   - [Logging-in](#logging-in)
-    - [Hander.new() (this is how you login)](#handlernewusername-passwordshared_secret)
+    - [Hander.new() (this is how you login)](#handlernewusername-passwordshared_secrettime_difference)
     - [mobile_info()](#mobile_infoidentity_secret)
   - [Getting someone's inventory](#getting-someones-inventory)
     - [normal_get_inventory()](#normal_get_inventorysteamidinventoryappid)
@@ -27,7 +36,7 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
   - [Counting badges owned](#counting-badges-owned)
     - [sets_count()](#sets_counttargetnon_marketable)
   - [2FA codes](#2fa-codes)
-    - [fa()](#fashared_secret)
+    - [fa()](#fashared_secret-time_difference)
   - [More commands](#more-commands)
 
 ## Installation
@@ -41,14 +50,17 @@ First you need to require the gem:
 require 'steam-trade'
 ```
 ## Logging-in
-#### `Handler.new(username, password,shared_secret)`
+#### `Handler.new(username, password,shared_secret,time_difference)`
 then you need to login and optionally set your shared_secret and identity_secret:
 - `shared_secret` is used to generate steam authentication codes so you won't have to write them manually each time you login.
+- `time_difference`is the difference between your time and steam servers, this affects how 2FA codes are generated (**this MUST BE an integer**)
 ```ruby
 require 'steam-trade'
 
 account = Handler.new('username','password','shared_secret') # share secret is optional
-
+account = Handler.new('username','password',50)
+account = Handler.new('username','password','shared_secret',50)
+account = Handler.new('username','password',50,'shared_secret') # this will not work
 ##########
 account = Handler.new('username') #this of course counts as non logged in
 
@@ -355,9 +367,9 @@ hash = account.sets_count('https://steamcommunity.com/tradeoffer/new/?partner=41
 
 ```
 ## 2FA codes
-#### `fa(shared_secret)`
+#### `fa(shared_secret, time_difference)`
 - `shared_secret` is the account's shared secret (if you don't know what is this try googling 'steam shared_secret'), defaults to the logged in account's steamid if logged in.
-
+- `time_difference` is the difference between your pc's time and steam's time (**this MUST BE an integer**)
 **NOTE**: using this command with a new shared_secret will not change/set the current saved shared_secret for the account
 ```ruby
 require 'steam-trade'
