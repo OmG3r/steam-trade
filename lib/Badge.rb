@@ -71,9 +71,11 @@ module BadgeCommands
             counted = {}
 
             sorted.each { |appid,cards|
-
-
-                  counted[appid] = bigdata[appid].merge(cards)
+                  begin
+                        counted[appid.to_s] = bigdata[appid].merge(cards)
+                  rescue
+                        output "badges blueprint does not include #{appid}"
+                  end
             }
 
             setsowned = {}
@@ -86,7 +88,7 @@ module BadgeCommands
                               if amount < lowest then lowest = amount end
                               total_non_foil =  total_non_foil + amount
                   }
-                  setsowned[appid] = lowest
+                  setsowned[appid.to_s] = lowest
                   numberofsets = numberofsets + lowest
             }
 
