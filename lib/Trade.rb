@@ -62,10 +62,11 @@ module TradeCommands
             output "trade offer sent ID:: " + response["tradeofferid"] + " to #{persona}"
             if response["needs_mobile_confirmation"] == true
                   if @identity_secret != nil && @steamid != nil
+                        sleep(0.6)
                         responsehash = response.merge(send_trade_allow_request(response["tradeofferid"]))
                         output "offer confirmed " + response["tradeofferid"]
                   else
-                        output "cannot confirm trade automatically, informations missing"
+                        output "cannot confirm trade automatically, no shared secret given"
                         output "Manual confirmation is needed"
                   end
             end
