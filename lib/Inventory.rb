@@ -174,9 +174,19 @@ module InventoryCommands
 
       private
       def get_inventory_chunk_normal_way(appid,context,steamid,last_id)
+                  html = ''
+                  tries = 1
 
+                  until html != ''
+                        begin
+                              html = @session.get("https://steamcommunity.com/inventory/#{steamid}/#{appid}/#{context}?start_assetid=#{last_id}&count=5000").content
+                        rescue
+                              raise "Cannot get inventory, tried 3 times" if tries == 3
+                              tries = tries + 1
+                              sleep(0.5)
+                        end
+                  end
 
-                  html = @session.get("https://steamcommunity.com/inventory/#{steamid}/#{appid}/#{context}?start_assetid=#{last_id}&count=5000").content
 
                   get = JSON.parse(html)
                   raise "something totally unexpected happened while getting inventory with appid #{appid} of steamid #{steamid} with contextid #{context}" if get.key?("error") == true
@@ -222,7 +232,18 @@ module InventoryCommands
       def get_inventory_chunk_raw_way(appid,context,steamid,last_id,trim)
 
 
-            html = @session.get("https://steamcommunity.com/inventory/#{steamid}/#{appid}/#{context}?start_assetid=#{last_id}&count=5000").content
+            html = ''
+            tries = 1
+
+            until html != ''
+                  begin
+                        html = @session.get("https://steamcommunity.com/inventory/#{steamid}/#{appid}/#{context}?start_assetid=#{last_id}&count=5000").content
+                  rescue
+                        raise "Cannot get inventory, tried 3 times" if tries == 3
+                        tries = tries + 1
+                        sleep(0.5)
+                  end
+            end
 
             get = JSON.parse(html)
             raise "something totally unexpected happened while getting inventory with appid #{appid} of steamid #{steamid} with contextid #{context}" if get.key?("error") == true
