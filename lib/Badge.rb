@@ -37,7 +37,6 @@ module BadgeCommands
                   true
             }
 
-            #GC.start
 
 
             hash["assets"].each { |asset|
@@ -68,6 +67,7 @@ module BadgeCommands
             }
 
             bigdata = JSON.parse(File.read("#{@libdir}blueprints/byappid.json",:external_encoding => 'utf-8',:internal_encoding => 'utf-8'))
+
             counted = {}
 
             sorted.each { |appid,cards|
@@ -85,6 +85,7 @@ module BadgeCommands
             counted.each { |appid,cards|
                   lowest = 9999
                   cards.each { |cardname, amount|
+                              next if amount.class == String # apptitle
                               if amount < lowest then lowest = amount end
                               total_non_foil =  total_non_foil + amount
                   }
@@ -102,6 +103,68 @@ module BadgeCommands
       end
 
 
+
+
+      def update_blueprint()
+            session = Mechanize.new
+
+            session.pre_connect_hooks << lambda do |agent, request|
+               request['Origin'] = 'http://steam.tools'
+               request['Referer'] = 'http://steam.tools/cards/'
+               request['User-Agent'] ='Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 OPR/52.0.2871.99'
+             end
+
+
+            pag = session.get('http://cdn.steam.tools/data/set_data.json')
+            data = JSON.parse(pag.content)
+            old = JSON.parse(File.read("#{@libdir}blueprints/byappid.json" ,:external_encoding => 'utf-8',:internal_encoding => 'utf-8'))
+
+            newapps = []
+            data["sets"].each { |set|
+                  newapps << set['appid']
+            }
+            get = []
+            haveapps = old.keys
+            newapps.each { |app|
+                  get << app if haveapps.include?(app) == false
+            }
+
+            progress = 0
+            error = 0
+            (output("your blueprint is up-to-date");return) if get.length.zero?
+            get.each {|app|
+                  begin
+                        card = {}
+                        steam_nokogiri = Nokogiri::HTML(session.get("http://www.steamcardexchange.net/index.php?inventorygame-appid-#{app}").content)
+                        title = steam_nokogiri.css('h2[class=empty]').text.force_encoding(Encoding::UTF_8)
+                        steam_nokogiri.css('div[class=name-image-container]').css('span').each do |e|
+                              card[e.text.force_encoding(Encoding::UTF_8)] = 0
+                        end
+                        card['title'] = title
+                        full_data = card
+
+                        old[app] = full_data
+                        File.open("#{@libdir}blueprints/byappid.json", 'w:UTF-8') {|f| f.puts old.to_json}
+
+                        progress = progress + 1
+                        output "#{progress} / #{get.length} done, error = #{error}"
+                  rescue Exception => e
+                        File.open("#{@libdir}blueprints/byappid.json", 'w:UTF-8') {|f| f.puts old.to_json}
+                        error = error + 1
+                        progress = progress + 1
+                        output "#{progress} / #get.length} done, error = #{error}"
+                        output "error occured saved data"
+                        raise e
+                  end
+            }
+
+
+      end
+
+
+
+
+
       private
       def write_badges(hashofcards,eachappidsets,totalsets,total_non_foil,use_nonmarketable,persona,steamid)
             if persona == ''
@@ -111,7 +174,7 @@ module BadgeCommands
             end
 
 
-            titles = JSON.parse(File.read("#{@libdir}blueprints/appid_title.json",:external_encoding => 'utf-8',:internal_encoding => 'utf-8'))
+             bigdata = JSON.parse(File.read("#{@libdir}blueprints/byappid.json",:external_encoding => 'utf-8',:internal_encoding => 'utf-8'))
             eachappidsets = eachappidsets.sort_by do |k,v|
               v
             end
@@ -132,7 +195,8 @@ module BadgeCommands
             text << ""
             text << ""
             eachappidsets.each { |appid, sets|
-                  text << "             #{titles[appid]}, sets = #{sets}, appid = #{appid}"
+                  w_title = bigdata[appid]['title']
+                  text << "             #{w_title}, sets = #{sets}, appid = #{appid}"
                   hashofcards[appid].each { |cardname, owned|
                         text << "#{cardname} xxx #{owned}"
                   }
