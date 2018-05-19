@@ -7,6 +7,12 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
 
 # Changelog
 ```
+0.1.3:
+- decreased cooldown between requests from 2 seconds to 1 second.
+- added a 0.6 second wait before attempting to confirm a trade offer (mobile).
+- added a 3 times retry to get an inventory chunk before raising an error.
+- exception handling for sets_count, now no longer raises an error if the target inventory contains trading cards which are not specified in the bluepirnt.
+
 0.1.2:
 - normal_get_inventory() and raw_get_inventory() now uses Mechanize instead of open-uri.
 - Handler.new() and fa() now accepts a time difference parameter to adjust your 2FA codes.
