@@ -9,7 +9,7 @@ module MiscCommands
       def set_steamid(steamid)
             if @loggedin == false
                   @steamid,token = verify_profileid_or_trade_link_or_steamid(steamid)
-                  output"steamID set to #{@steamid}"
+                  output "steamID set to #{@steamid}"
             else
                   raise "editing steamID while logged in will cause malfunctions"
             end
@@ -32,7 +32,7 @@ module MiscCommands
 
 
 
-
+      private
       def partner_id_to_steam_id(account_id)
             unknown_constant = 17825793 # or 0x1100001 idk wtf is this but ....
             first_bytes = [account_id.to_i].pack('i>')
@@ -40,7 +40,7 @@ module MiscCommands
             collect = last_bytes + first_bytes
             return collect.unpack('Q>')[0].to_s
       end
-      private
+
       def output(message)
             time = Time.new
             add = time.strftime("%d-%m-%Y %H:%M:%S")
