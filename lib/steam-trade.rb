@@ -16,7 +16,7 @@ require_relative './Badge.rb'
 require_relative './Guard.rb'
 require_relative './Playerinfo.rb'
 require_relative './IEconService.rb'
-
+require_relative './Social.rb'
 class Handler
       include MiscCommands
       include LoginCommands
@@ -28,7 +28,8 @@ class Handler
       include GuardCommands
       include PlayerCommands
       include TradeAPI
-
+      include SocialCommands
+      
       def initialize(username = nil ,password = nil,*params)
            raise "can only take 4 params, given #{params.length}" if params.length > 2
             @loggedin = false # will be set to true once we login
@@ -38,6 +39,11 @@ class Handler
             @secret = nil
             @time_difference = 0
 
+            @session = Mechanize.new { |agent| # the session which will hold your cookies to communicate with steam
+                  agent.user_agent_alias = 'Windows Mozilla'
+                  agent.follow_meta_refresh = true
+                  agent.history_added = Proc.new {sleep 1}
+            }
 
             if params.length == 2
                  @secret = params[0] if params[0].class == String
@@ -54,18 +60,25 @@ class Handler
             @identity_secret = nil # can and should be initialized using mobile_info
             @api_key = nil # can be initalized through set_api_key or will be initialized once you login if possilbe
             @persona = nil # will be initialized once you login
-            @session = Mechanize.new { |agent| # the session which will hold your cookies to communicate with steam
-                  agent.user_agent_alias = 'Windows Mozilla'
-                  agent.follow_meta_refresh = true
-                  agent.history_added = Proc.new {sleep 1}
-            }
+
 
             @inventory_cache = false
             @libdir = Util.gem_libdir
             @messages = true
-            output "Handler started for #{@username}"
+
+
+            @chat_session = nil ## will be initialized if neededs
+            @oauth_token = nil #required to send messages
+            @umqid = nil # required to send messages
+            @message_id = nil #requires to send messages
+
+            if @username.nil?
+                  output "Handler started"
+            else
+                  output "Handler started for #{@username}"
+            end
             if username != nil && password != nil
-                  login()
+                 login()
             end
       end
 
