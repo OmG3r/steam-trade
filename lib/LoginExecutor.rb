@@ -3,7 +3,8 @@ module LoginCommands
 ########################################################################################
      private
       def login()
-            data = pass_stamp()
+            response = @session.post('https://store.steampowered.com/login/getrsakey/', {'username' => @username})
+            data = pass_stamp(response)
             encrypted_password = data["password"]
             timestamp = data["timestamp"]
             repeater = 0
@@ -88,10 +89,9 @@ module LoginCommands
 
 
 ########################################################################################
-      def pass_stamp()
-            response = @session.post('https://store.steampowered.com/login/getrsakey/', {'username' => @username})
+      def pass_stamp(give)
 
-            data = JSON::parse(response.body)
+            data = JSON::parse(give)
             mod = data["publickey_mod"].hex
             exp = data["publickey_exp"].hex
             timestamp = data["timestamp"]
