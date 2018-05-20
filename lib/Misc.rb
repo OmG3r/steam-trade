@@ -26,7 +26,9 @@ module MiscCommands
       end
 ########################################################################################
 
-
+      def use_chat_session()
+            @chat_session
+      end
 
 
 
@@ -76,7 +78,7 @@ module MiscCommands
             end
             if value == nil
                   begin
-                        @session.cookie_jar.jar["store.steampowered.com"]["/"]["sessionid"].value
+                        value = @session.cookie_jar.jar["store.steampowered.com"]["/"]["sessionid"].value
                   rescue
                         value = nil
                   end
