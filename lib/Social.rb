@@ -165,7 +165,7 @@ module SocialCommands
 
 
 
-      def authlogin(oauth_token,machinevalue)
+      def oauth_login(oauth_token,machinevalue)
 
         @chat_session = Mechanize.new { |a| # the session which will hold your cookies to communicate with steam
               a.follow_meta_refresh = true
