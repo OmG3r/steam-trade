@@ -4,7 +4,7 @@ module LoginCommands
      private
       def login()
             response = @session.post('https://store.steampowered.com/login/getrsakey/', {'username' => @username})
-            data = pass_stamp(response)
+            data = pass_stamp(response,@password)
             encrypted_password = data["password"]
             timestamp = data["timestamp"]
             repeater = 0
@@ -89,7 +89,7 @@ module LoginCommands
 
 
 ########################################################################################
-      def pass_stamp(give)
+      def pass_stamp(give,password)
 
             data = JSON::parse(give)
             mod = data["publickey_mod"].hex
@@ -99,7 +99,7 @@ module LoginCommands
             key   = OpenSSL::PKey::RSA.new
             key.e = OpenSSL::BN.new(exp)
             key.n = OpenSSL::BN.new(mod)
-            ep = Base64.encode64(key.public_encrypt(@password.force_encoding("utf-8"))).gsub("\n", '')
+            ep = Base64.encode64(key.public_encrypt(password.force_encoding("utf-8"))).gsub("\n", '')
             return {'password' => ep, 'timestamp' => timestamp }
       end
 ########################################################################################
