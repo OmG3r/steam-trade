@@ -29,7 +29,7 @@ class Handler
       include PlayerCommands
       include TradeAPI
       include SocialCommands
-      
+
       def initialize(username = nil ,password = nil,*params)
            raise "can only take 4 params, given #{params.length}" if params.length > 2
             @loggedin = false # will be set to true once we login
@@ -39,10 +39,11 @@ class Handler
             @secret = nil
             @time_difference = 0
 
-            @session = Mechanize.new { |agent| # the session which will hold your cookies to communicate with steam
-                  agent.user_agent_alias = 'Windows Mozilla'
-                  agent.follow_meta_refresh = true
-                  agent.history_added = Proc.new {sleep 1}
+            @session = Mechanize.new { |a| # the session which will hold your cookies to communicate with steam
+                  a.user_agent_alias = 'Windows Mozilla'
+                  a.follow_meta_refresh = true
+                  a.history_added = Proc.new {sleep 1}
+               #   a.agent.http.verify_mode = OpenSSL::SSL::VERIFY_NONE
             }
 
             if params.length == 2
