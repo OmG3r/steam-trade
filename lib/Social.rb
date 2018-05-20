@@ -42,8 +42,8 @@ module SocialCommands
       end
 
       def send_message(id, message)
-            raise "you must be logged in to send a message" if @loggedin == false
-            chat_start() if @chat_session.nil?
+            raise "no account details given cannot poll messages" if @chat_session.nil? && @username.nil?
+            mobile_login() if @chat_session.nil?
 
             steamid = verify_profileid_or_trade_link_or_steamid(id)
 
@@ -59,8 +59,8 @@ module SocialCommands
 
 
       def poll_messages()
-            raise "you must be logged in to pool messages" if @loggedin == false
-            chat_start() if @chat_session.nil?
+            raise "no account details given cannot poll messages" if @chat_session.nil? && @username.nil?
+            mobile_login() if @chat_session.nil?
             response = @chat_session.post('https://api.steampowered.com/ISteamWebUserPresenceOAuth/Poll/v1', {
                   "umqid": @umqid,
                   "message": @message_id,
@@ -77,17 +77,18 @@ module SocialCommands
       end
 
 
-      private
-      def chat_start()
-                  mobile_login()
-                  get_umqid()
-      end
 
 
-      def mobile_login()
-            @chat_session = Mechanize.new { |agent| # the session which will hold your cookies to communicate with steam
-                  agent.follow_meta_refresh = true
-                  agent.log = Logger.new('read.log')
+
+
+      def mobile_login(username = @username, password = @password, secret = nil)
+            secret = @secret if username == @username
+            raise "username is required to do a chat login" if username.nil?
+            raise "password is required to do a chat login" if password.nil?
+
+            @chat_session = Mechanize.new { |a| # the session which will hold your cookies to communicate with steam
+                  a.follow_meta_refresh = true
+               #   a.agent.http.verify_mode = OpenSSL::SSL::VERIFY_NONE
             }
 
             mobileheaders = {
@@ -108,16 +109,16 @@ module SocialCommands
             @chat_session.cookie_jar << cookie
 
 
-            response = @chat_session.post('https://steamcommunity.com/login/getrsakey/', {'username' => @username}, mobileheaders).content
+            response = @chat_session.post('https://steamcommunity.com/login/getrsakey/', {'username' => username}, mobileheaders).content
 
 
-            data = pass_stamp(response)
+            data = pass_stamp(response,password)
             encrypted_password = data["password"]
             timestamp = data["timestamp"]
             repeater = 0
             until repeater == true
-                  if @secret != nil
-                        guardcode = fa(@secret,@time_difference)
+                  if secret != nil
+                        guardcode = fa(secret,0)
                   else
                         puts "please write your 2FA code (mobile login to send messages)"
                         guardcode = gets.chomp
@@ -133,7 +134,7 @@ module SocialCommands
                         'remember_login' => 'false',
                         'rsatimestamp' => timestamp,
                         'twofactorcode' =>guardcode,
-                        'username' => @username,
+                        'username' => username,
                         'loginfriendlyname' => '#login_emailauth_friendlyname_mobile',
                         'oauth_scope' => "read_profile write_profile read_client write_client",
                         'oauth_client_id' => "DE45CD61"
@@ -145,7 +146,7 @@ module SocialCommands
                   if response["success"] == true
                         repeater = true
                   elsif repeater == 3
-                        raise "Login (mobile) failed username: #{@username}, password: #{@password}, shared_scret: #{@secret} tried 3 times"
+                        raise "Login (mobile) failed username: #{username}, password: #{password}, shared_scret: #{secret} tried 3 times"
                  else
 
                        sleep(2)
@@ -157,11 +158,54 @@ module SocialCommands
 
             oauth_hash = JSON.parse(response["oauth"]) # steam returns a hash as a string
             @oauth_token = oauth_hash["oauth_token"]
+            machinevalue = steammachine_cookie(oauth_hash["steamid"])
+            get_umqid()
+            return {"oauth_token" => @oauth_token, "machine" => machinevalue}
+      end
+
+
+
+      def authlogin(oauth_token,machinevalue)
+
+        @chat_session = Mechanize.new { |a| # the session which will hold your cookies to communicate with steam
+              a.follow_meta_refresh = true
+             # a.agent.http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        }
+
+
+        @oauth_token = oauth_token
+        response = @chat_session.post('https://api.steampowered.com/IMobileAuthService/GetWGToken/v1/', {"access_token" => oauth_token}).content
+        data = JSON.parse(response)
+        data = data["response"]
+
+        raise "error. cannot login" if data["token"].nil? || data["token_secure"].nil?
+
+
+        steamid = get_umqid(true) ##umqid got
+
+        ## loading cookies
+        container = []
+        container << (Mechanize::Cookie.new :domain => 'store.steampowered.com', :name =>'steamLogin', :value =>data["token"], :path => '/')
+        container << (Mechanize::Cookie.new :domain => 'steamcommunity.com', :name =>'steamLogin', :value =>data["token"], :path => '/')
+        container << (Mechanize::Cookie.new :domain => 'help.steampowered.com', :name =>'steamLogin', :value =>data["token"], :path => '/')
+
+        container << (Mechanize::Cookie.new :domain => 'store.steampowered.com', :name =>'steamLoginSecure', :value =>data["token_secure"], :path => '/')
+        container << (Mechanize::Cookie.new :domain => 'steamcommunity.com', :name =>'steamLoginSecure', :value =>data["token_secure"], :path => '/')
+        container << (Mechanize::Cookie.new :domain => 'help.steampowered.com', :name =>'steamLoginSecure', :value =>data["token_secure"], :path => '/')
+
+        container << (Mechanize::Cookie.new :domain => 'store.steampowered.com', :name => "steamMachineAuth#{steamid}" , :value => machinevalue, :path => '/')
+        container << (Mechanize::Cookie.new :domain => 'steamcommunity.com', :name => "steamMachineAuth#{steamid}" , :value => machinevalue, :path => '/')
+        container << (Mechanize::Cookie.new :domain => 'help.steampowered.com', :name => "steamMachineAuth#{steamid}" , :value => machinevalue, :path => '/')
+
+        container.each { |cookie|
+            @chat_session.cookie_jar << cookie
+        }
 
 
       end
 
-      def get_umqid()
+      private
+      def get_umqid(re = false)
             response = @chat_session.post('https://api.steampowered.com/ISteamWebUserPresenceOAuth/Logon/v1', {
                                     'ui_mode' => 'web',
                                     'access_token' => @oauth_token
@@ -170,16 +214,32 @@ module SocialCommands
             @umqid = hash["umqid"]
             @message_id = hash["message"]
 
-            ## starting polling
-            response = @chat_session.post('https://api.steampowered.com/ISteamWebUserPresenceOAuth/Poll/v1', {
-                  "umqid": @umqid,
-                  "message": @message_id,
-                  "pollid": 1,
-                  "sectimeout": 20,
-                  "secidletime": 0,
-                  "use_accountids": 0,
-                  "access_token": @oauth_token
-                  })
+          (return hash["steamid"]) if re == true
+      end
 
+
+      def steammachine_cookie(steamid)
+            value = nil
+            begin
+                  value = @chat_session.cookie_jar.jar["steamcommunity.com"]["/"]["steamMachineAuth#{steamid}"].value
+            rescue
+                  value = nil
+            end
+            if value == nil
+                  begin
+                        value = @chat_session.cookie_jar.jar["store.steampowered.com"]["/"]["steamMachineAuth#{steamid}"].value
+                  rescue
+                        value = nil
+                  end
+            end
+
+            if value == nil
+                  @chat_session.cookies.each { |c|
+                        if c.name == "steamMachineAuth#{steamid}"
+                               value = c.value
+                         end
+                  }
+            end
+            return value
       end
 end
