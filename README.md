@@ -1,4 +1,4 @@
-# steam-trade V0.1.4
+# steam-trade V0.1.5
 Please check constantly for updates cause i'm still making this gem.
 
 This gem simplifes/allows sending steam trade offers programmatically.
@@ -7,10 +7,16 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
 
 # Changelog
 ```
+0.1.6:
+- hotfix
+
+0.1.5:
+- added mobile_login() which allows you to send and receive steam messages
+- added oauth_login() uses oauth token and steamMachine cookie to login in ( you get those from mobile_login())
+
 0.1.4:
 - added Social commands : send friend request, accept friend request, remove friend, send message, get messages
 - added function to update badges blueprint (useful when there is no gem update)
-
 
 0.1.3:
 - decreased cooldown between requests from 2 seconds to 1 second.
@@ -385,7 +391,7 @@ hash = account.sets_count('https://steamcommunity.com/tradeoffer/new/?partner=41
 
 ```
 
-#### update_blueprint()
+#### `update_blueprint()`
 - updates your locally saved badges blueprint
 ```ruby
 require 'steam-trade'
@@ -417,8 +423,63 @@ puts logged.fa() # will give a random code
 
 ```
 ## Social Commands
+#### `mobile_login('username','password','shared_secret')`
+- this command will be called automatically if you attempt to use send_message() or poll_messages() without logging
+- calling this explicitly allows you to painlessly retrieve the OAuth token and SteamMachine#{steamid} cookie to use in oauth_login()
+- this function returns a hash with "oauth_token" and "machine" as keys
+``ruby
+require 'steam-trade'
+
+h = Handler.new('user','pass','secret')
+data = h.mobile_login() #this works are you have setted username and password
+puts data ## will output with oauth token and steamMachine cookie
+
+###################
+h = Handler.new()
+data = h.mobile_login() # will raise an error cause there is no username or password
+
+##########
+
+h = Handler.new()
+data = h.mobile_login('user','pass','secret') ## will work, you are not logged in ( talking about community) here you can't use most of the commands (send_offer() etc) and those parameters you passed will not be setted as the Handler's
+
+######
+h = Handler.new('user1','pass1','secret1')
+data = mobile_login('user2','pass2','secret2') # this works but trading commands etc will be called using user1, and chat commands will be called using user2
+``
+#### `oauth_login(oauth_token,SteamMachine)`
+- `oauth_token` and `SteamMachine` can be retrieved from `mobile_login()`
+```ruby
+require 'steam-trade'
+h = Handler.new()
+h.oauth_login('oauth_token','SteamMachine')
+```
+#### `send_message(target, message)`
+sends a message to the target
+- `target` can be a steamID64, tradelink, or profileID
+- `message` the message to send
+```ruby
+require 'steam-trade'
+
+h = Handler.new('username', 'password')
+h.send_message('nomg3r', "Hello, Friend)
+```
+
+#### `poll_messages()`
+gives you the messages you receieved (after mobile login is initiated (after you call send_message() or poll_messages()  ) )
+
+```ruby
+require 'steam-trade'
+
+h = Handler.new('username', 'password')
+print h.poll_messages() # will not return messages so you call at again ( only the first time in the whole program )
+puts ""
+puts "------"
+sleep(10) #send a message to the logged in account
+print h.poll_messages() # actually have messages ( if you received some in the time between the first and the second request )
+```
 **ALL OF THE COMMANDS BELOW REQUIRES LOGIN**
-### `send_friend_request(target)`
+#### `send_friend_request(target)`
 sends a friend request to the target
 - `target` can be a steamID64, tradelink, or profileID
 
@@ -429,7 +490,7 @@ h = Handler.new('username', 'password')
 h.send_friend_request('nomg3r')
 ```
 
-### `accept_friend_request(target)`
+#### `accept_friend_request(target)`
 accepts a friend request from the target
 - `target` can be a steamID64, tradelink, or profileID
 
@@ -450,30 +511,7 @@ require 'steam-trade'
 h = Handler.new('username', 'password')
 h.remove_friend('nomg3r')
 ```
-### `send_message(target, message)`
-sends a message to the target
-- `target` can be a steamID64, tradelink, or profileID
-- `message` the message to send
-```ruby
-require 'steam-trade'
 
-h = Handler.new('username', 'password')
-h.send_message('nomg3r', "Hello, Friend)
-```
-
-### `poll_messages()`
-gives you the messages you receieved (after mobile login is initiated (after you call send_message() or poll_messages()  ) )
-
-```ruby
-require 'steam-trade'
-
-h = Handler.new('username', 'password')
-print h.poll_messages() # will not return messages so you call at again ( only the first time in the whole program )
-puts ""
-puts "------"
-sleep(10) #send a message to the logged in account
-print h.poll_messages() # actually have messages ( if you received some in the time between the first and the second request )
-```
 ## More commands
 you can find more non-vital commands in the [wiki](https://github.com/OmG3r/steam-trade/wiki)
 ## License
