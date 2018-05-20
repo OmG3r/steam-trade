@@ -131,7 +131,7 @@ module SocialCommands
                         'emailauth' => '',
                         'emailsteamid' => '',
                         'password' => encrypted_password,
-                        'remember_login' => 'false',
+                        'remember_login' => 'true',
                         'rsatimestamp' => timestamp,
                         'twofactorcode' =>guardcode,
                         'username' => username,
