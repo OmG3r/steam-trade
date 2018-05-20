@@ -1,4 +1,4 @@
-# steam-trade V0.1.3
+# steam-trade V0.1.4
 Please check constantly for updates cause i'm still making this gem.
 
 This gem simplifes/allows sending steam trade offers programmatically.
@@ -7,6 +7,11 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
 
 # Changelog
 ```
+0.1.4:
+- added Social commands : send friend request, accept friend request, remove friend, send message, get messages
+- added function to update badges blueprint (useful when there is no gem update)
+
+
 0.1.3:
 - decreased cooldown between requests from 2 seconds to 1 second.
 - added a 0.6 second wait before attempting to confirm a trade offer (mobile).
@@ -41,8 +46,15 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
     - [cancel_trade_offer()](#cancel_trade_offertrade_offer_id)
   - [Counting badges owned](#counting-badges-owned)
     - [sets_count()](#sets_counttargetnon_marketable)
+    - [update_blueprint()](#update_blueprint)
   - [2FA codes](#2fa-codes)
     - [fa()](#fashared_secret-time_difference)
+  - [Social Features](#social-commands)
+    - [send_friend_request()](#send_friend_requesttarget)
+    - [accept_friend_request()](#accept_friend_requesttarget)
+    - [remove_friend()](#remove_friendtarget)
+    - [send_message()](#send_messagetarget-message)
+    - [poll_messages()](#poll_messages)
   - [More commands](#more-commands)
 
 ## Installation
@@ -372,6 +384,16 @@ hash = account.sets_count(76561198370420964)
 hash = account.sets_count('https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt',false)
 
 ```
+
+#### update_blueprint()
+- updates your locally saved badges blueprint
+```ruby
+require 'steam-trade'
+
+handler = Handler.new
+
+handler.update_blueprint()
+```
 ## 2FA codes
 #### `fa(shared_secret, time_difference)`
 - `shared_secret` is the account's shared secret (if you don't know what is this try googling 'steam shared_secret'), defaults to the logged in account's steamid if logged in.
@@ -393,6 +415,64 @@ nonlogged = Handler.new()
 puts nonlogged.fa() # will not work
 puts logged.fa() # will give a random code
 
+```
+## Social Commands
+**ALL OF THE COMMANDS BELOW REQUIRES LOGIN**
+### `send_friend_request(target)`
+sends a friend request to the target
+- `target` can be a steamID64, tradelink, or profileID
+
+```ruby
+require 'steam-trade'
+
+h = Handler.new('username', 'password')
+h.send_friend_request('nomg3r')
+```
+
+### `accept_friend_request(target)`
+accepts a friend request from the target
+- `target` can be a steamID64, tradelink, or profileID
+
+```ruby
+require 'steam-trade'
+
+h = Handler.new('username', 'password')
+h.accept_friend_request('nomg3r')
+```
+
+### `remove_friend(target)`
+removes a friend
+- `target` can be a steamID64, tradelink, or profileID
+
+```ruby
+require 'steam-trade'
+
+h = Handler.new('username', 'password')
+h.remove_friend('nomg3r')
+```
+### `send_message(target, message)`
+sends a message to the target
+- `target` can be a steamID64, tradelink, or profileID
+- `message` the message to send
+```ruby
+require 'steam-trade'
+
+h = Handler.new('username', 'password')
+h.send_message('nomg3r', "Hello, Friend)
+```
+
+### `poll_messages()`
+gives you the messages you receieved (after mobile login is initiated (after you call send_message() or poll_messages()  ) )
+
+```ruby
+require 'steam-trade'
+
+h = Handler.new('username', 'password')
+print h.poll_messages() # will not return messages so you call at again ( only the first time in the whole program )
+puts ""
+puts "------"
+sleep(10) #send a message to the logged in account
+print h.poll_messages() # actually have messages ( if you received some in the time between the first and the second request )
 ```
 ## More commands
 you can find more non-vital commands in the [wiki](https://github.com/OmG3r/steam-trade/wiki)
