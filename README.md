@@ -1,4 +1,4 @@
-# steam-trade V0.1.9
+# steam-trade V0.2.0
 Please check constantly for updates cause i'm still making this gem.
 
 This gem simplifes/allows sending steam trade offers programmatically.
@@ -7,6 +7,16 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
 
 # Changelog
 ```
+0.2.0:
+- hotfix
+
+0.1.9:
+- Handler.new() now accepts a hash contains login cookies.
+- get_auth_cookies() returns cookies to use for the next login
+
+0.1.8:
+- hotfix
+
 0.1.7:
 - hotfix
 
@@ -38,7 +48,10 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
 - [Installation](#installation)
 - [Usage & Examples](#usage)
   - [Logging-in](#logging-in)
-    - [Hander.new() (this is how you login)](#handlernewusername-passwordshared_secrettime_difference)
+    - [Hander.new() (this is how you login)](#handlernew)
+      - [Handler.new() (normal login)](#handlernewusername-passwordshared_secrettime_differenceremember_me)
+      - [Handler.new() (cookies login)](#handlernewcookies_hash)
+    - [get_auth_cookies()](#get_auth_cookies)
     - [mobile_info()](#mobile_infoidentity_secret)
   - [Getting someone's inventory](#getting-someones-inventory)
     - [normal_get_inventory()](#normal_get_inventorysteamidinventoryappid)
@@ -79,17 +92,26 @@ First you need to require the gem:
 require 'steam-trade'
 ```
 ## Logging-in
-#### `Handler.new(username, password,shared_secret,time_difference)`
+#### `Handler.new()`
+##### `Handler.new(username, password,shared_secret,time_difference,remember_me)`
 then you need to login and optionally set your shared_secret and identity_secret:
 - `shared_secret` is used to generate steam authentication codes so you won't have to write them manually each time you login.
 - `time_difference`is the difference between your time and steam servers, this affects how 2FA codes are generated (**this MUST BE an integer**)
+- `remember_me` is a boolean used to indicate whether you want cookies which expire shortly if set to **false** or stay valid for weeks if set to **true**
 ```ruby
 require 'steam-trade'
 
 account = Handler.new('username','password','shared_secret') # share secret is optional
-account = Handler.new('username','password',50)
+account = Handler.new('username','password',50) #works
 account = Handler.new('username','password','shared_secret',50)
 account = Handler.new('username','password',50,'shared_secret') # this will not work
+
+account = Handler.new('username','password','shared_secret',20,true) # works
+account = Handler.new('username','password','shared_secret',true) #works
+account = Handler.new('username','password',20,true) #works
+account = Handler.new('username','password',true) #works
+
+account = Handler.new('username','password','shared_secret',true,20) # will not work
 ##########
 account = Handler.new('username') #this of course counts as non logged in
 
@@ -102,6 +124,31 @@ account = Handler.new()
 puts account.fa('v3dWNq2Ncutc7RelwRVXswT8CJX=v3dWNq2Ncutc7WelwRVXswT8CJk=') => random code
 
 ```
+
+##### `Handler.new(cookies_hash)`
+- `cookies_hash` is hash containing `steamLogin`, `steamLoginSecure` and `steamMachineAuth` cookies.
+this can be used with `get_auth_cookies()` for faster login.
+
+```ruby
+require 'steam-trade'
+account = Handler.new(JSON.parse(File.read('./creds.json'))) # creds.json is created by get_auth_cookies()
+```
+
+#### `get_auth_cookies()`
+- returns the current logged in account cookies to use in the future.
+```ruby
+require 'steam-trade'
+account = Handler.new('username','password','shared_secret',true)
+cookies = h.get_auth_cookies
+
+File.open('creds.json', 'w') {|f| f.puts cookies.to_json)
+```
+next time :
+```ruby
+require 'steam-trade'
+account = Handler.new(JSON.parse(File.read('./creds.json')))
+```
+
 #### `mobile_info(identity_secret)`
 - `identity_secret` is your account's identity secret (try using google if you don't know what this is).
 - `identity_secret` is used to automatically confirm trade offers.
