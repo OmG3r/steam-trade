@@ -152,7 +152,7 @@ module BadgeCommands
                         File.open("#{@libdir}blueprints/byappid.json", 'w:UTF-8') {|f| f.puts old.to_json}
                         error = error + 1
                         progress = progress + 1
-                        output "#{progress} / #get.length} done, error = #{error}"
+                        output "#{progress} / #{get.length} done, error = #{error}"
                         output "error occured saved data"
                         raise e
                   end
