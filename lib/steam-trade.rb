@@ -31,13 +31,15 @@ class Handler
       include SocialCommands
 
       def initialize(username = nil ,password = nil,*params)
-           raise "can only take 4 params, given #{params.length}" if params.length > 2
+           raise "can only take 5 params, given #{params.length}" if params.length > 3
+
             @loggedin = false # will be set to true once we login
 
-            @username = username
-            @password = password
+            @username = nil
+            @password = nil
             @secret = nil
             @time_difference = 0
+            @remember = false
 
             @session = Mechanize.new { |a| # the session which will hold your cookies to communicate with steam
                   a.user_agent_alias = 'Windows Mozilla'
@@ -45,17 +47,6 @@ class Handler
                   a.history_added = Proc.new {sleep 1}
                #   a.agent.http.verify_mode = OpenSSL::SSL::VERIFY_NONE
             }
-
-            if params.length == 2
-                 @secret = params[0] if params[0].class == String
-                 @time_difference = params[1] if params[1].class == Integer
-            elsif params.length == 1 && params[0].class == String
-                 @secret = params[0]
-                 @time_difference = 0
-            elsif params.length == 1 && params[0].class == Integer
-                 @secret = nil
-                 @time_difference = params[0]
-            end
 
             @steamid = nil # will be initialized once you login and can be initialized with mobile_info
             @identity_secret = nil # can and should be initialized using mobile_info
@@ -73,30 +64,67 @@ class Handler
             @umqid = nil # required to send messages
             @message_id = nil #requires to send messages
 
-            if @username.nil?
-                  output "Handler started"
-            else
-                  output "Handler started for #{@username}"
-            end
-            if username != nil && password != nil
+
+
+
+            if params.length == 3
+                  raise "shared_secret must be string, received #{parasm[0].class}" if params[0].class != String
+                  raise "time difference must be an integer, received #{params[1].class}" if params[1].class != Integer
+                  raise "remember_me must be a boolean, received #{params[2].class}" if !([TrueClass,FalseClass].include?(params[2].class))
+                  @secret = params[0] if params[0].class == String
+                  @time_difference = params[1] if params[1].class == Integer
+                  @remember = params[2] if [TrueClass,FalseClass].include?(params[2].class)
+            elsif params.length == 2
+                  if params[0].class == String
+                        raise "invalid fourth parameter type, received #{params[1].class}" if !([TrueClass,FalseClass].include?(params[1].class)) && params[1].class != Integer
+                        @secret = params[0]
+                        @time_difference = params[1] if params[1].class == Integer
+                        @remember = params[1] if [TrueClass,FalseClass].include?(params[1].class)
+                  elsif params[0].class == Integer
+                       raise "remember_me must be a boolean, received #{params[1].class}" if !([TrueClass,FalseClass].include?(params[1].class))
+                       @time_difference = params[0]
+                       @remember = params[1]
+                 else
+                       raise "invalid third parameter type"
+                 end
+           elsif params.length == 1
+                  raise "invalid third parameter type, received #{params[0].class}" if !([TrueClass,FalseClass].include?(params[0].class)) && params[0].class != Integer && params[0].class != String
+                 @secret = params[0] if params[0].class == String
+                 @time_difference = params[0] if params[0].class == Integer
+                 @remember = params[0] if [TrueClass,FalseClass].include?(params[0].class)
+           end
+
+
+
+
+            (@username.nil? || @username.class == Hash) ? (output "Handler started") : ( output "Handler started for #{@username}")
+
+            if username.class == String && password.class == String
+                  @username = username
+                  @password = password
                  login()
-            end
+           elsif username.class == Hash
+                 load_cookies(username)
+           end
+
+
       end
+
 
       def mobile_info(identity_secret, steamid = nil)
             @identity_secret = identity_secret
-            if @steamid == nil && steamid != nil
-                  @steamid = steamid
-            end
+            @steamid = steamid if  @steamid == nil && steamid != nil
       end
 
       def set_inventory_cache(timer = 120)
             integer = 5
             float = 5.5
             if timer.class == integer.class || timer.class == float.class
-                  @inventory_validity = timer
+                  @inventory_validity = timer.to_i
                   output "inventory validity set to #{timer}"
             end
+
+
             if @inventory_cache == false
                   @inventory_cache = true
                   output "inventory cache enabled"
@@ -111,13 +139,82 @@ class Handler
       end
 
       def toggle_messages()
-            if @messages == true
-                 output "messages are now disabled"
-                 @messages = false
-           else
-                 @messages = true
-                 output "messages are now enabled"
-           end
+            @messages == true ?  (output "messages are now disabled"; @messages = false;) : (output "messages are now enabled";@messages = true;)
+     end
+
+
+
+
+      def get_auth_cookies()
+            data = {}
+            #data['sessionid'] = @session.cookie_jar.jar["steamcommunity.com"]["/"]["sessionid"].value
+            begin
+                  data['steamLogin'] = @session.cookie_jar.jar["store.steampowered.com"]["/"]["steamLogin"].value
+            rescue
+                  data['steamLogin'] = @session.cookie_jar.jar["steamcommunity.com"]["/"]["steamLogin"].value
+            end
+
+            begin
+                  data['steamLoginSecure'] = @session.cookie_jar.jar["store.steampowered.com"]["/"]["steamLoginSecure"].value
+            rescue
+                   data['steamLoginSecure'] = @session.cookie_jar.jar["steamcommunity.com"]["/"]["steamLoginSecure"].value
+            end
+
+            if @steamid != nil
+                  begin
+                        data["steamMachineAuth#{@steamid}"] = @session.cookie_jar.jar["store.steampowered.com"]["/"]["steamMachineAuth#{@steamid}"].value
+                  rescue
+                         data["steamMachineAuth#{@steamid}"] = @session.cookie_jar.jar["steamcommunity.com"]["/"]["steamMachineAuth#{@steamid}"].value
+                  end
+
+            else
+
+                  @session.cookies.each { |c|
+                        if c.downcase.include?('steammachine')
+                              data[c] = c.value
+                         end
+                  }
+            end
+
+            return data
+
+
+      end
+      private
+      def load_cookies(data)
+            container = []
+            data.each { |name, value|
+                  if name.include?("steamMachineAuth")
+                        container << (Mechanize::Cookie.new :domain => 'store.steampowered.com', :name => name , :value => value, :path => '/')
+                        container << (Mechanize::Cookie.new :domain => 'steamcommunity.com', :name => name , :value =>value, :path => '/')
+                        container << (Mechanize::Cookie.new :domain => 'help.steampowered.com', :name => name , :value => value, :path => '/')
+                        @steamid = name.sub('steamMachineAuth', '')
+                  elsif name == 'steamLogin'
+                        container << (Mechanize::Cookie.new :domain => 'store.steampowered.com', :name => name , :value => value, :path => '/')
+                        container << (Mechanize::Cookie.new :domain => 'steamcommunity.com', :name => name , :value =>value, :path => '/')
+                        container << (Mechanize::Cookie.new :domain => 'help.steampowered.com', :name => name , :value => value, :path => '/')
+                  elsif name == 'steamLoginSecure'
+                        container << (Mechanize::Cookie.new :domain => 'store.steampowered.com', :name => name , :value => value, :path => '/')
+                        container << (Mechanize::Cookie.new :domain => 'steamcommunity.com', :name => name , :value =>value, :path => '/')
+                        container << (Mechanize::Cookie.new :domain => 'help.steampowered.com', :name => name , :value => value, :path => '/')
+                  end
+            }
+
+            container.each { |cookie|
+                @session.cookie_jar << cookie
+            }
+            user = Nokogiri::HTML(@session.get('https://store.steampowered.com/stats/').content).css('#account_pulldown').text
+            raise "Could not login using cookies" if user ==  ''
+            output "logged in as #{user}"
       end
 
+
+
 end
+
+
+#h  = Handler.new('okayauth4','WhyOkay12','yzDGbENY2B1LsGiflcw6mw1luu4=',true)
+h = Handler.new(JSON.parse(File.read('data.json')))
+data = h.get_cookies
+puts data
+File.open('data.json', 'w:UTF-8') {|f| f.puts data.to_json}
