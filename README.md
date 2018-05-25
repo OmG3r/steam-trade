@@ -1,4 +1,4 @@
-# steam-trade V0.1.5
+# steam-trade V0.1.7
 Please check constantly for updates cause i'm still making this gem.
 
 This gem simplifes/allows sending steam trade offers programmatically.
@@ -7,6 +7,9 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
 
 # Changelog
 ```
+0.1.7:
+- hotfix
+
 0.1.6:
 - hotfix
 
@@ -56,11 +59,13 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
   - [2FA codes](#2fa-codes)
     - [fa()](#fashared_secret-time_difference)
   - [Social Features](#social-commands)
+    - [mobile_login()](#mobile_loginusernamepasswordshared_secret)
+    - [oauth_login()](#oauth_loginoauth_tokensteammachine)
+    - [send_message()](#send_messagetarget-message)
+    - [poll_messages()](#poll_messages)
     - [send_friend_request()](#send_friend_requesttarget)
     - [accept_friend_request()](#accept_friend_requesttarget)
     - [remove_friend()](#remove_friendtarget)
-    - [send_message()](#send_messagetarget-message)
-    - [poll_messages()](#poll_messages)
   - [More commands](#more-commands)
 
 ## Installation
@@ -424,10 +429,10 @@ puts logged.fa() # will give a random code
 ```
 ## Social Commands
 #### `mobile_login('username','password','shared_secret')`
-- this command will be called automatically if you attempt to use send_message() or poll_messages() without logging
-- calling this explicitly allows you to painlessly retrieve the OAuth token and SteamMachine#{steamid} cookie to use in oauth_login()
-- this function returns a hash with "oauth_token" and "machine" as keys
-``ruby
+- this command will be called automatically if you attempt to use `send_message()` or `poll_messages()` without authentication
+- calling this explicitly allows you to painlessly retrieve the OAuth token and `SteamMachine#{steamid}` cookie to use in `oauth_login()`
+- this function returns a hash with `oauth_token` and `machine` as keys
+```ruby
 require 'steam-trade'
 
 h = Handler.new('user','pass','secret')
@@ -446,7 +451,7 @@ data = h.mobile_login('user','pass','secret') ## will work, you are not logged i
 ######
 h = Handler.new('user1','pass1','secret1')
 data = mobile_login('user2','pass2','secret2') # this works but trading commands etc will be called using user1, and chat commands will be called using user2
-``
+```
 #### `oauth_login(oauth_token,SteamMachine)`
 - `oauth_token` and `SteamMachine` can be retrieved from `mobile_login()`
 ```ruby
@@ -462,7 +467,7 @@ sends a message to the target
 require 'steam-trade'
 
 h = Handler.new('username', 'password')
-h.send_message('nomg3r', "Hello, Friend)
+h.send_message('nomg3r', "Hello, Friend")
 ```
 
 #### `poll_messages()`
