@@ -1,4 +1,4 @@
 module   Meta
-      VERSION = "0.1.7"
+      VERSION = "0.1.8"
       GEM_NAME = "steam-trade"
 end
