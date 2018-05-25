@@ -3,7 +3,7 @@ module LoginCommands
 ########################################################################################
      private
       def login()
-            response = @session.post('https://store.steampowered.com/login/getrsakey/', {'username' => @username})
+            response = @session.post('https://store.steampowered.com/login/getrsakey/', {'username' => @username}).content
             data = pass_stamp(response,@password)
             encrypted_password = data["password"]
             timestamp = data["timestamp"]
@@ -27,7 +27,7 @@ module LoginCommands
                         'captcha_text' => '',
                         'emailsteamid' => '',
                         'rsatimestamp' => timestamp,
-                        'remember_login' => 'false'
+                        'remember_login' => @remember
                   }
 
                   login = @session.post('https://store.steampowered.com/login/dologin', send )
