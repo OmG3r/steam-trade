@@ -211,10 +211,3 @@ class Handler
 
 
 end
-
-
-#h  = Handler.new('okayauth4','WhyOkay12','yzDGbENY2B1LsGiflcw6mw1luu4=',true)
-h = Handler.new(JSON.parse(File.read('data.json')))
-data = h.get_cookies
-puts data
-File.open('data.json', 'w:UTF-8') {|f| f.puts data.to_json}
