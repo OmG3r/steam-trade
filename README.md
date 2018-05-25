@@ -1,4 +1,4 @@
-# steam-trade V0.1.7
+# steam-trade V0.1.9
 Please check constantly for updates cause i'm still making this gem.
 
 This gem simplifes/allows sending steam trade offers programmatically.
