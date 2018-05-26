@@ -6,11 +6,10 @@ module SocialCommands
       def send_friend_request(target)
             raise "you must be logged in to send a friend request" if @loggedin == false
 
-            steamid = verify_profileid_or_trade_link_or_steamid(target)
-
+            steamid,token = verify_profileid_or_trade_link_or_steamid(target)
             @session.post('https://steamcommunity.com/actions/AddFriendAjax', {
                               "accept_invite" => 0,
-                              "sessionID" =>  handler.sessionid_cookie,
+                              "sessionID" =>  sessionid_cookie(),
                               "steamid" => steamid
                         })
 
@@ -19,11 +18,11 @@ module SocialCommands
       def accept_friend_request(target)
             raise "you must be logged in to accept a friend request" if @loggedin == false
 
-            steamid = verify_profileid_or_trade_link_or_steamid(target)
+            steamid,token = verify_profileid_or_trade_link_or_steamid(target)
 
             @session.post('https://steamcommunity.com/actions/AddFriendAjax', {
                               "accept_invite" => 1,
-                              "sessionID" =>  handler.sessionid_cookie,
+                              "sessionID" => sessionid_cookie(),
                               "steamid" => steamid
                         })
 
@@ -32,20 +31,20 @@ module SocialCommands
       def remove_friend(target)
             raise "you must be logged in to remove a friend" if @loggedin == false
 
-            steamid = verify_profileid_or_trade_link_or_steamid(target)
+            steamid,token = verify_profileid_or_trade_link_or_steamid(target)
 
            @session.post('https://steamcommunity.com/actions/RemoveFriendAjax', {
-                              "sessionID" =>  handler.sessionid_cookie,
+                              "sessionID" =>  sessionid_cookie(),
                               "steamid" => steamid
                         })
 
       end
 
       def send_message(id, message)
-            raise "no account details given cannot poll messages" if @chat_session.nil? && @username.nil?
+            raise "no account details given cannot poll messages" if @chat_session.nil? && @username.nil? && @password.nil?
             mobile_login() if @chat_session.nil?
 
-            steamid = verify_profileid_or_trade_link_or_steamid(id)
+            steamid,token = verify_profileid_or_trade_link_or_steamid(id)
 
             @chat_session.post('https://api.steampowered.com/ISteamWebUserPresenceOAuth/Message/v1', {
 
@@ -59,7 +58,7 @@ module SocialCommands
 
 
       def poll_messages()
-            raise "no account details given cannot poll messages" if @chat_session.nil? && @username.nil?
+            raise "no account details given cannot poll messages" if @chat_session.nil? && @username.nil? && @password.nil?
             mobile_login() if @chat_session.nil?
             response = @chat_session.post('https://api.steampowered.com/ISteamWebUserPresenceOAuth/Poll/v1', {
                   "umqid": @umqid,
