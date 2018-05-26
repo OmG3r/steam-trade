@@ -67,32 +67,6 @@ class Handler
 
 
 
-            if params.length == 3
-                  raise "shared_secret must be string, received #{parasm[0].class}" if params[0].class != String
-                  raise "time difference must be an integer, received #{params[1].class}" if params[1].class != Integer
-                  raise "remember_me must be a boolean, received #{params[2].class}" if !([TrueClass,FalseClass].include?(params[2].class))
-                  @secret = params[0] if params[0].class == String
-                  @time_difference = params[1] if params[1].class == Integer
-                  @remember = params[2] if [TrueClass,FalseClass].include?(params[2].class)
-            elsif params.length == 2
-                  if params[0].class == String
-                        raise "invalid fourth parameter type, received #{params[1].class}" if !([TrueClass,FalseClass].include?(params[1].class)) && params[1].class != Integer
-                        @secret = params[0]
-                        @time_difference = params[1] if params[1].class == Integer
-                        @remember = params[1] if [TrueClass,FalseClass].include?(params[1].class)
-                  elsif params[0].class == Integer
-                       raise "remember_me must be a boolean, received #{params[1].class}" if !([TrueClass,FalseClass].include?(params[1].class))
-                       @time_difference = params[0]
-                       @remember = params[1]
-                 else
-                       raise "invalid third parameter type"
-                 end
-           elsif params.length == 1
-                  raise "invalid third parameter type, received #{params[0].class}" if !([TrueClass,FalseClass].include?(params[0].class)) && params[0].class != Integer && params[0].class != String
-                 @secret = params[0] if params[0].class == String
-                 @time_difference = params[0] if params[0].class == Integer
-                 @remember = params[0] if [TrueClass,FalseClass].include?(params[0].class)
-           end
 
 
 
@@ -102,8 +76,78 @@ class Handler
             if username.class == String && password.class == String
                   @username = username
                   @password = password
+
+
+                  if params.length == 3
+                        raise "shared_secret must be string, received #{parasm[0].class}" if params[0].class != String
+                        raise "time difference must be an integer(Fixnum), received #{params[1].class}" if params[1].class != Fixnum
+                        raise "remember_me must be a boolean, received #{params[2].class}" if !([TrueClass,FalseClass].include?(params[2].class))
+                        @secret = params[0] if params[0].class == String
+                        @time_difference = params[1] if params[1].class == Fixnum
+                        @remember = params[2] if [TrueClass,FalseClass].include?(params[2].class)
+                  elsif params.length == 2
+                        if params[0].class == String
+                              raise "invalid fourth parameter type, received #{params[1].class}" if !([TrueClass,FalseClass].include?(params[1].class)) && params[1].class != Fixnum
+                              @secret = params[0]
+                              @time_difference = params[1] if params[1].class == Fixnum
+                              @remember = params[1] if [TrueClass,FalseClass].include?(params[1].class)
+                        elsif params[0].class == Fixnum
+                             raise "remember_me must be a boolean, received #{params[1].class}" if !([TrueClass,FalseClass].include?(params[1].class))
+                             @time_difference = params[0]
+                             @remember = params[1]
+                       else
+                             raise "invalid third parameter type"
+                       end
+                 elsif params.length == 1
+                        raise "invalid third parameter type, received #{params[0].class}" if !([TrueClass,FalseClass].include?(params[0].class)) && params[0].class != Fixnum && params[0].class != String
+                       @secret = params[0] if params[0].class == String
+                       @time_difference = params[0] if params[0].class == Fixnum
+                       @remember = params[0] if [TrueClass,FalseClass].include?(params[0].class)
+                 end
+
                  login()
            elsif username.class == Hash
+                 password.nil? ? (calcule = 1;) : (calcule = 2 + params.length)
+                 raise "given #{calcule} parameters expected less or equal to params 4  " if calcule > 4
+                 if calcule > 1
+                       if params.length == 0
+
+
+                             raise "invalid parameter type, received #{password.class}" if !(password.class == String || password.class == Fixnum || [TrueClass,FalseClass].include?(password.class) )
+                             @secret = password if  password.class == String
+                             @time_difference =  password if  password.class == Fixnum
+                             @remember =  password if [TrueClass,FalseClass].include?(password.class)
+
+
+                       elsif params.length == 1
+
+
+                             if password.class == String
+                                   @secret = password
+                                   raise "invalid paramter type, received #{params[0].class}" if !([TrueClass,FalseClass].include?(params[0].class) || params[0].class == Fixnum )
+                                   @time_difference = params[0] if params[0].class == Fixnum
+                                   @remember = params[0] if [TrueClass,FalseClass].include?(params[0].class)
+                             elsif password.class == Fixnum
+                                   @time_difference = password
+                                   raise "invalid paramter type, received #{params[0].class}" if !([TrueClass,FalseClass].include?(params[0].class))
+                                   @remember = params[0] if [TrueClass,FalseClass].include?(params[0].class)
+                             else
+                                   raise "invalid parameter type, received #{password.class}"
+                             end
+
+
+                       elsif params.length == 2
+                             raise "shared_secret must be a string, recieved #{password.class}" if password.class != String
+                             @secret = password if  password.class == String
+                             raise "time difference must be an integer (Fixnum), received #{params[0].class}" if params[0].class != Fixnum
+                             @time_difference = params[0] if params[0].class == Fixnum
+                             raise "remeber_me must be a boolean, recieved #{params[1].class}" if !([TrueClass,FalseClass].include?(params[1].class))
+                             @remember = params[1] if [TrueClass,FalseClass].include?(params[1].class)
+
+                       end
+
+                 end
+
                  load_cookies(username)
            end
 
@@ -203,8 +247,10 @@ class Handler
             container.each { |cookie|
                 @session.cookie_jar << cookie
             }
-            user = Nokogiri::HTML(@session.get('https://store.steampowered.com/stats/').content).css('#account_pulldown').text
+
+            user = Nokogiri::HTML(@session.get('https://steamcommunity.com/').content).css('#account_pulldown').text
             raise "Could not login using cookies" if user ==  ''
+            @loggedin = true
             output "logged in as #{user}"
       end
 
