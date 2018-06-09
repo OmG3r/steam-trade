@@ -255,5 +255,3 @@ class Handler
 
 
 end
-
-h = Handler.new('okayauth4','WhyOkay12',"yzDGbENY2B1LsGiflcw6mw1luu4=",10,true)
