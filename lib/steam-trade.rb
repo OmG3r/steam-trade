@@ -80,18 +80,18 @@ class Handler
 
                   if params.length == 3
                         raise "shared_secret must be string, received #{parasm[0].class}" if params[0].class != String
-                        raise "time difference must be an integer(Fixnum), received #{params[1].class}" if params[1].class != Fixnum
+                        raise "time difference must be a Numeric, received #{params[1].class}" if !params[1].is_a?(Numeric)
                         raise "remember_me must be a boolean, received #{params[2].class}" if !([TrueClass,FalseClass].include?(params[2].class))
                         @secret = params[0] if params[0].class == String
-                        @time_difference = params[1] if params[1].class == Fixnum
+                        @time_difference = params[1] if params[1].is_a?(Numeric)
                         @remember = params[2] if [TrueClass,FalseClass].include?(params[2].class)
                   elsif params.length == 2
                         if params[0].class == String
-                              raise "invalid fourth parameter type, received #{params[1].class}" if !([TrueClass,FalseClass].include?(params[1].class)) && params[1].class != Fixnum
+                              raise "invalid fourth parameter type, received #{params[1].class}" if !([TrueClass,FalseClass].include?(params[1].class)) && !params[1].is_a?(Numeric)
                               @secret = params[0]
-                              @time_difference = params[1] if params[1].class == Fixnum
+                              @time_difference = params[1] if params[1].is_a?(Numeric)
                               @remember = params[1] if [TrueClass,FalseClass].include?(params[1].class)
-                        elsif params[0].class == Fixnum
+                        elsif params[0].is_a?(Numeric)
                              raise "remember_me must be a boolean, received #{params[1].class}" if !([TrueClass,FalseClass].include?(params[1].class))
                              @time_difference = params[0]
                              @remember = params[1]
@@ -99,9 +99,9 @@ class Handler
                              raise "invalid third parameter type"
                        end
                  elsif params.length == 1
-                        raise "invalid third parameter type, received #{params[0].class}" if !([TrueClass,FalseClass].include?(params[0].class)) && params[0].class != Fixnum && params[0].class != String
+                        raise "invalid third parameter type, received #{params[0].class}" if !([TrueClass,FalseClass].include?(params[0].class)) && !params[0].is_a?(Numeric) && params[0].class != String
                        @secret = params[0] if params[0].class == String
-                       @time_difference = params[0] if params[0].class == Fixnum
+                       @time_difference = params[0] if params[0].is_a?(Numeric)
                        @remember = params[0] if [TrueClass,FalseClass].include?(params[0].class)
                  end
 
@@ -113,9 +113,9 @@ class Handler
                        if params.length == 0
 
 
-                             raise "invalid parameter type, received #{password.class}" if !(password.class == String || password.class == Fixnum || [TrueClass,FalseClass].include?(password.class) )
+                             raise "invalid parameter type, received #{password.class}" if !(password.class == String || params[0].is_a?(Numeric) || [TrueClass,FalseClass].include?(password.class) )
                              @secret = password if  password.class == String
-                             @time_difference =  password if  password.class == Fixnum
+                             @time_difference =  password if  password.is_a?(Numeric)
                              @remember =  password if [TrueClass,FalseClass].include?(password.class)
 
 
@@ -124,10 +124,10 @@ class Handler
 
                              if password.class == String
                                    @secret = password
-                                   raise "invalid paramter type, received #{params[0].class}" if !([TrueClass,FalseClass].include?(params[0].class) || params[0].class == Fixnum )
-                                   @time_difference = params[0] if params[0].class == Fixnum
+                                   raise "invalid paramter type, received #{params[0].class}" if !([TrueClass,FalseClass].include?(params[0].class) || params[0].is_a?(Numeric) )
+                                   @time_difference = params[0] if params[0].is_a?(Numeric)
                                    @remember = params[0] if [TrueClass,FalseClass].include?(params[0].class)
-                             elsif password.class == Fixnum
+                             elsif password.is_a?(Numeric)
                                    @time_difference = password
                                    raise "invalid paramter type, received #{params[0].class}" if !([TrueClass,FalseClass].include?(params[0].class))
                                    @remember = params[0] if [TrueClass,FalseClass].include?(params[0].class)
@@ -139,8 +139,8 @@ class Handler
                        elsif params.length == 2
                              raise "shared_secret must be a string, recieved #{password.class}" if password.class != String
                              @secret = password if  password.class == String
-                             raise "time difference must be an integer (Fixnum), received #{params[0].class}" if params[0].class != Fixnum
-                             @time_difference = params[0] if params[0].class == Fixnum
+                             raise "time difference must be a Numeric, received #{params[0].class}" if !params[0].is_a?(Numeric)
+                             @time_difference = params[0] if params[0].is_a?(Numeric)
                              raise "remeber_me must be a boolean, recieved #{params[1].class}" if !([TrueClass,FalseClass].include?(params[1].class))
                              @remember = params[1] if [TrueClass,FalseClass].include?(params[1].class)
 
@@ -161,9 +161,7 @@ class Handler
       end
 
       def set_inventory_cache(timer = 120)
-            integer = 5
-            float = 5.5
-            if timer.class == integer.class || timer.class == float.class
+            if timer.is_a?(Numeric)
                   @inventory_validity = timer.to_i
                   output "inventory validity set to #{timer}"
             end
@@ -257,3 +255,5 @@ class Handler
 
 
 end
+
+h = Handler.new('okayauth4','WhyOkay12',"yzDGbENY2B1LsGiflcw6mw1luu4=",10,true)
