@@ -1,4 +1,4 @@
-# steam-trade V0.2.2
+# steam-trade V0.2.3
 
 **PLEASE IF SOMETHING DOES NOT WORK PROPERLY MAKE A GITHUB ISSUE**
 
@@ -10,6 +10,13 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
 
 # Changelog
 ```
+0.2.3:
+- hotfix
+
+0.2.2:
+- fixed issues with ruby 2.4+
+- added class methods for fa(), normal_get_inventory(), raw_get_inventory, sets_count()
+
 0.2.1:
 - many many bugs fixed
 
@@ -180,6 +187,8 @@ you might want to read this [guide](https://dev.doctormckay.com/topic/332-identi
 
 ```ruby
 require 'steam-trade'
+inventory = Handler.normal_get_inventory("nomg3r")
+
 
 logged = Handler.new('username','password','shared_secret')
 logged.mobile_info('identity_secret')
@@ -225,6 +234,9 @@ This command will return a hash nearly identitical to the one received from stea
 
 ```ruby
 require 'steam-trade'
+inv = Handler.raw_get_inventory("nomg3r")
+
+
 logged = Handler.new('username','password','shared_secret')
 inv = logged.raw_get_inventory() #works
 inv = logged.raw_get_inventory(false) # returns non trimmed
@@ -434,6 +446,8 @@ polling = Thread.new(logged) { |logged|
   - `'totalcards'` is an integer equals to the number of non-foil cards account for
 ```ruby
 require 'steam-trade'
+data = Handler.sets_count("CardExchange")
+
 
 logged = Handler.new('username','password','shared_secret')
 logged.mobile_info('identity_secret')
@@ -471,6 +485,8 @@ handler.update_blueprint()
 **NOTE**: using this command with a new shared_secret will not change/set the current saved shared_secret for the account
 ```ruby
 require 'steam-trade'
+puts Hander.fa('random_shared_secret')
+
 
 logged = Handler.new('username','password','inital_shared_secret')
 puts logged.fa() #=> random code for your account
