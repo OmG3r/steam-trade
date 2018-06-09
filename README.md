@@ -1,4 +1,7 @@
-# steam-trade V0.2.0
+# steam-trade V0.2.2
+
+**PLEASE IF SOMETHING DOES NOT WORK PROPERLY MAKE A GITHUB ISSUE**
+
 Please check constantly for updates cause i'm still making this gem.
 
 This gem simplifes/allows sending steam trade offers programmatically.
@@ -7,6 +10,9 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
 
 # Changelog
 ```
+0.2.1:
+- many many bugs fixed
+
 0.2.0:
 - hotfix
 
@@ -50,7 +56,7 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
   - [Logging-in](#logging-in)
     - [Hander.new() (this is how you login)](#handlernew)
       - [Handler.new() (normal login)](#handlernewusername-passwordshared_secrettime_differenceremember_me)
-      - [Handler.new() (cookies login)](#handlernewcookies_hash)
+      - [Handler.new() (cookies login)](#handlernewcookies_hashshared_secrettime_differenceremember_me)
     - [get_auth_cookies()](#get_auth_cookies)
     - [mobile_info()](#mobile_infoidentity_secret)
   - [Getting someone's inventory](#getting-someones-inventory)
@@ -125,13 +131,19 @@ puts account.fa('v3dWNq2Ncutc7RelwRVXswT8CJX=v3dWNq2Ncutc7WelwRVXswT8CJk=') => r
 
 ```
 
-##### `Handler.new(cookies_hash)`
+##### `Handler.new(cookies_hash,shared_secret,time_difference,remember_me)`
 - `cookies_hash` is hash containing `steamLogin`, `steamLoginSecure` and `steamMachineAuth` cookies.
 this can be used with `get_auth_cookies()` for faster login.
+- `shared_secret` is used to generate steam authentication codes so you won't have to write them manually each time you login.
+- `time_difference`is the difference between your time and steam servers, this affects how 2FA codes are generated (**this MUST BE an integer**)
+- `remember_me` is a boolean used to indicate whether you want cookies which expire shortly if set to **false** or stay valid for weeks if set to **true**
+
 
 ```ruby
 require 'steam-trade'
 account = Handler.new(JSON.parse(File.read('./creds.json'))) # creds.json is created by get_auth_cookies()
+
+account = Handler.new(JSON.parse(File.read('./creds.json')), 'shared_secret', 50)
 ```
 
 #### `get_auth_cookies()`
