@@ -78,6 +78,11 @@ module BadgeCommands
                         output "badges blueprint does not include #{appid}"
                   end
             }
+            counted.each { |appid, cards|
+                  cards.delete_if { |key,value|
+                        key == 'title'
+                  }
+            }
 
             setsowned = {}
             numberofsets = 0
@@ -273,6 +278,11 @@ module BadgeCommands
                         end
                   }
 
+                  counted.each { |appid, cards|
+                        cards.delete_if { |key,value|
+                              key == 'title'
+                        }
+                  }
                   setsowned = {}
                   numberofsets = 0
                   total_non_foil = 0
