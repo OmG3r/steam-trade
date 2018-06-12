@@ -1,4 +1,4 @@
-# steam-trade V0.2.3
+# steam-trade V0.2.4
 
 **PLEASE IF SOMETHING DOES NOT WORK PROPERLY MAKE A GITHUB ISSUE**
 
@@ -10,6 +10,9 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
 
 # Changelog
 ```
+0.2.4:
+-hotfix
+
 0.2.3:
 - hotfix
 
