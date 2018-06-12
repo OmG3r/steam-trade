@@ -199,7 +199,7 @@ module BadgeCommands
                   w_title = bigdata[appid]['title']
                   text << "             #{w_title}, sets = #{sets}, appid = #{appid}"
                   hashofcards[appid].each { |cardname, owned|
-                        next if !owned.is_a(Numeric)
+                        next if !owned.is_a?(Numeric)
                         text << "#{cardname} xxx #{owned}"
                   }
                   text << ""
