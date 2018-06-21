@@ -10,8 +10,12 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
 
 # Changelog
 ```
+0.2.5:
+- added finish_queue() to collect Steam Sale Trading Cards
+- hotfix
+
 0.2.4:
--hotfix
+- hotfix
 
 0.2.3:
 - hotfix
