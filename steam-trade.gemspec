@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["adam.boulila@live.fr"]
   spec.files            = Dir['lib/   *.rb'] + Dir['bin/*'] + Dir['lib/meta/*rb'] + Dir['lib/blueprints/*json']
   spec.summary       = %q{A steambot library to manage steam trading offers.}
-  spec.description   = %q{Send steam trading offers, generate steam 2FA codes, confirm steam trade offers, get inventories,count badges}
+  spec.description   = %q{Send steam trading offers, generate steam 2FA codes, confirm steam trade offers, get inventories,count badges, collect Sale cards}
   spec.homepage      = "https://github.com/OmG3r/steam-trade/"
   spec.license       = "GPL-3.0"
 
