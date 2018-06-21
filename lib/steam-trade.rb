@@ -17,6 +17,7 @@ require_relative './Guard.rb'
 require_relative './Playerinfo.rb'
 require_relative './IEconService.rb'
 require_relative './Social.rb'
+require_relative './EventCards.rb'
 class Handler
       include MiscCommands
       include LoginCommands
@@ -29,7 +30,7 @@ class Handler
       include PlayerCommands
       include TradeAPI
       include SocialCommands
-
+      include EventCommands
       def initialize(username = nil ,password = nil,*params)
            raise "can only take 5 params, given #{params.length}" if params.length > 3
 
@@ -249,6 +250,7 @@ class Handler
             user = Nokogiri::HTML(@session.get('https://steamcommunity.com/').content).css('#account_pulldown').text
             raise "Could not login using cookies" if user ==  ''
             @loggedin = true
+            @username = user
             output "logged in as #{user}"
       end
 
