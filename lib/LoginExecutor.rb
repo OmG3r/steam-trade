@@ -108,16 +108,22 @@ module LoginCommands
             @session.cookie_jar << cookie
             @loggedin = true
             begin
-                  @api_key = Nokogiri::HTML(@session.get("https://steamcommunity.com/dev/apikey").content).css('#bodyContents_ex').css('p').first.text.sub('Key: ','')
+                  text = Nokogiri::HTML(@session.get("https://steamcommunity.com/dev/apikey").content).css('#bodyContents_ex').css('p').first.text.sub('Key: ','')
+                  if text.include?('Registering for a Steam Web API Key will enable you to access many Steam features from your own website') == false
+                        @api_key = text
+                  end
             rescue
                   output "Could not retrieve api_key"
             end
-            data = get_player_summaries(@steamid)
-            data.each { |element|
-                  if element["steamid"].to_s == @steamid.to_s
-                        @persona = element["personaname"]
-                  end
-            }
+
+            if !@api_key.nil?
+                  data = get_player_summaries(@steamid) if !@api_key.nil?
+                  data.each { |element|
+                        if element["steamid"].to_s == @steamid.to_s
+                              @persona = element["personaname"]
+                        end
+                  }
+            end
             output "logged in as #{@persona}"
             output "your steamid is #{@steamid}"
             output "loaded API_KEY : #{@api_key}" if !@api_key.nil?
