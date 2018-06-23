@@ -224,7 +224,7 @@ class Handler
 
       end
       private
-      def load_cookies(data)
+      def load_cookies(data,session = @session)
             container = []
             data.each { |name, value|
                   if name.include?("steamMachineAuth")
@@ -244,14 +244,16 @@ class Handler
             }
 
             container.each { |cookie|
-                @session.cookie_jar << cookie
+                session.cookie_jar << cookie
             }
 
-            user = Nokogiri::HTML(@session.get('https://steamcommunity.com/').content).css('#account_pulldown').text
+            user = Nokogiri::HTML(session.get('https://steamcommunity.com/').content).css('#account_pulldown').text
             raise "Could not login using cookies" if user ==  ''
-            @loggedin = true
-            @username = user
-            output "logged in as #{user}"
+            if session == @session
+                  @loggedin = true
+                  @username = user
+                  output "logged in as #{user}"
+            end
       end
 
 
