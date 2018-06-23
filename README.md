@@ -11,7 +11,7 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
 # Changelog
 ```
 0.2.7:
-- added salien_card() to collec the Salien game Trading Cards
+- added salien_card() to collect steam Salien game Trading Cards
 
 0.2.6:
 - hotfix
@@ -173,7 +173,7 @@ require 'steam-trade'
 account = Handler.new('username','password','shared_secret',true)
 cookies = h.get_auth_cookies
 
-File.open('creds.json', 'w') {|f| f.puts cookies.to_json)
+File.open('creds.json', 'w') {|f| f.puts cookies.to_json}
 ```
 next time :
 ```ruby
