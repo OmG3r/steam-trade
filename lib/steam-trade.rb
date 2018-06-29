@@ -219,6 +219,9 @@ class Handler
                   }
             end
 
+            data['store_sessionid'] = store_cookie()
+            data['community_sessionid'] = sessionid_cookie()
+
             return data
 
 
@@ -240,6 +243,10 @@ class Handler
                         container << (Mechanize::Cookie.new :domain => 'store.steampowered.com', :name => name , :value => value, :path => '/')
                         container << (Mechanize::Cookie.new :domain => 'steamcommunity.com', :name => name , :value =>value, :path => '/')
                         container << (Mechanize::Cookie.new :domain => 'help.steampowered.com', :name => name , :value => value, :path => '/')
+                  elsif name == 'store_sessionid'
+                        container << (Mechanize::Cookie.new :domain => 'store.steampowered.com', :name => 'sessionid' , :value => value, :path => '/')
+                  elsif name == 'community_sessionid'
+                        container << (Mechanize::Cookie.new :domain => 'steamcommunity.com', :name => 'sessionid' , :value =>value, :path => '/')
                   end
             }
 
