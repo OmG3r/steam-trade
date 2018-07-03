@@ -221,8 +221,9 @@ class Handler
 
             data['store_sessionid'] = store_cookie()
             data['community_sessionid'] = sessionid_cookie()
-            if @session.cookie_jar.jar["store.steampowered.com"]["/"]['steamRememberLogin'] != nil
-                  data['steamRememberLogin'] =   @session.cookie_jar.jar["store.steampowered.com"]["/"]['steamRememberLogin'].value
+            begin
+                  data['steamRememberLogin'] =  @session.cookie_jar.jar["store.steampowered.com"]["/"]['steamRememberLogin'].value
+            rescue
             end
 
             return data
