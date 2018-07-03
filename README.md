@@ -1,4 +1,4 @@
-# steam-trade V0.2.7
+# steam-trade V0.2.9
 
 **PLEASE IF SOMETHING DOES NOT WORK PROPERLY MAKE A GITHUB ISSUE**
 
@@ -10,6 +10,12 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
 
 # Changelog
 ```
+0.2.9:
+- hotfix for cookie login (remember me)
+
+0.2.8:
+- fixed cookie login
+
 0.2.7:
 - added salien_card() to collect steam Salien game Trading Cards
 
@@ -257,8 +263,8 @@ inv = logged.raw_get_inventory(440) #works
 inv = logged.raw_get_inventory(76561198044170935,false) #works
 inv = logged.raw_get_inventory(76561198044170935,440) # works
 
-print inv['assets'] will print all the assets
-print inv['descriptions'] will print all the descriptions
+print inv['assets'] #will print all the assets
+print inv['descriptions'] #will print all the descriptions
 
 ### how to accurately use this
 
