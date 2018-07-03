@@ -221,6 +221,9 @@ class Handler
 
             data['store_sessionid'] = store_cookie()
             data['community_sessionid'] = sessionid_cookie()
+            if @session.cookie_jar.jar["store.steampowered.com"]["/"]['steamRememberLogin'] != nil
+                  data['steamRememberLogin'] =   @session.cookie_jar.jar["store.steampowered.com"]["/"]['steamRememberLogin'].value
+            end
 
             return data
 
@@ -247,6 +250,10 @@ class Handler
                         container << (Mechanize::Cookie.new :domain => 'store.steampowered.com', :name => 'sessionid' , :value => value, :path => '/')
                   elsif name == 'community_sessionid'
                         container << (Mechanize::Cookie.new :domain => 'steamcommunity.com', :name => 'sessionid' , :value =>value, :path => '/')
+                  elsif name == 'steamRememberLogin'
+                        container << (Mechanize::Cookie.new :domain => 'store.steampowered.com', :name => name , :value => value, :path => '/')
+                       container << (Mechanize::Cookie.new :domain => 'steamcommunity.com', :name => name , :value =>value, :path => '/')
+                       container << (Mechanize::Cookie.new :domain => 'help.steampowered.com', :name => name , :value => value, :path => '/')
                   end
             }
 
