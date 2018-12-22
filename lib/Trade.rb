@@ -65,9 +65,11 @@ module TradeCommands
                         sleep(0.6)
                         responsehash = response.merge(send_trade_allow_request(response["tradeofferid"]))
                         output "offer confirmed " + response["tradeofferid"]
+                        return responsehash
                   else
                         output "cannot confirm trade automatically, no shared secret given"
                         output "Manual confirmation is needed"
+                        return nil
                   end
             end
 
@@ -90,7 +92,41 @@ module TradeCommands
 
 
 
+      def sell_items(items, price)
+        raise "no account logged in, #{self} " if @loggedin == false
+        raise "Must given array" if items.class != Array
 
+
+        headers = {
+              'Origin' => 'https://steamcommunity.com',
+              'Referer' => 'https://steamcommunity.com/id/SimplifiedPact/inventory/',
+              'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36 OPR/54.0.2952.54',
+        }
+        
+        items.each { |asset|
+
+          asset['sessionid'] = sessionid_cookie()
+          asset['price'] = price
+          verd = {'sucess' => false}
+          tries = 0
+          i = 0
+          until verd['success'] == true || tries == 2
+                resp = @session.post('https://steamcommunity.com/market/sellitem/', asset, headers)
+
+                verd = JSON.parse(resp.content)
+
+                if verd['success'] == false
+                      break if verd['message'].include?('You already have a listing for this') || verd['message'].include?('We were unable to contact')
+                      tries += 1
+                      sleep(10)
+                else
+                  i += 1
+                  puts "#{i} / #{items.length} sold"
+                end
+          end
+          sleep(1)
+        }
+      end
 
 
 

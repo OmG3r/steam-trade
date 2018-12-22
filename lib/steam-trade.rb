@@ -53,6 +53,7 @@ class Handler
             @identity_secret = nil # can and should be initialized using mobile_info
             @api_key = nil # can be initalized through set_api_key or will be initialized once you login if possilbe
             @persona = nil # will be initialized once you login
+            @android_id = nil
 
 
             @inventory_cache = false
@@ -80,7 +81,7 @@ class Handler
 
 
                   if params.length == 3
-                        raise "shared_secret must be string, received #{parasm[0].class}" if params[0].class != String
+                        raise "shared_secret must be string, received #{params[0].class}" if params[0].class != String
                         raise "time difference must be a Numeric, received #{params[1].class}" if !params[1].is_a?(Numeric)
                         raise "remember_me must be a boolean, received #{params[2].class}" if !([TrueClass,FalseClass].include?(params[2].class))
                         @secret = params[0] if params[0].class == String
@@ -150,6 +151,15 @@ class Handler
                  end
 
                  load_cookies(username)
+                 
+                 begin
+                       text = Nokogiri::HTML(@session.get("https://steamcommunity.com/dev/apikey").content).css('#bodyContents_ex').css('p').first.text.sub('Key: ','')
+                       if text.include?('Registering for a Steam Web API Key will enable you to access many Steam features from your own website') == false
+                             @api_key = text
+                       end
+                 rescue
+                       output "Could not retrieve api_key"
+                 end
            end
 
 
@@ -191,22 +201,26 @@ class Handler
       def get_auth_cookies()
             data = {}
             #data['sessionid'] = @session.cookie_jar.jar["steamcommunity.com"]["/"]["sessionid"].value
-            begin
-                  data['steamLogin'] = @session.cookie_jar.jar["store.steampowered.com"]["/"]["steamLogin"].value
-            rescue
-                  data['steamLogin'] = @session.cookie_jar.jar["steamcommunity.com"]["/"]["steamLogin"].value
-            end
 
             begin
-                  data['steamLoginSecure'] = @session.cookie_jar.jar["store.steampowered.com"]["/"]["steamLoginSecure"].value
+                  data['steamLogin'] = @session.cookie_jar.jar["store.steampowered.com"]["/"]["steamLogin"].value
+                  if data['steamLogin'].nil?
+                        data['steamLogin'] = @session.cookie_jar.jar["steamcommunity.com"]["/"]["steamLogin"].value
+                  end
             rescue
+
+            end
+
+
+            data['steamLoginSecure'] = @session.cookie_jar.jar["store.steampowered.com"]["/"]["steamLoginSecure"].value
+            if data['steamLoginSecure'].nil?
                    data['steamLoginSecure'] = @session.cookie_jar.jar["steamcommunity.com"]["/"]["steamLoginSecure"].value
             end
 
             if @steamid != nil
-                  begin
+
                         data["steamMachineAuth#{@steamid}"] = @session.cookie_jar.jar["store.steampowered.com"]["/"]["steamMachineAuth#{@steamid}"].value
-                  rescue
+                  if data["steamMachineAuth#{@steamid}"].nil?
                          data["steamMachineAuth#{@steamid}"] = @session.cookie_jar.jar["steamcommunity.com"]["/"]["steamMachineAuth#{@steamid}"].value
                   end
 
@@ -230,6 +244,12 @@ class Handler
 
 
       end
+
+
+      def load_android_id(str)
+            @android_id = str
+      end
+
       private
       def load_cookies(data,session = @session)
             container = []
@@ -270,6 +290,8 @@ class Handler
                   output "logged in as #{user}"
             end
       end
+
+
 
 
 

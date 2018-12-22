@@ -86,7 +86,7 @@ module ConfirmationCommands
 
       def send_confirmation(confirmationhash) ## tenth
             tag = 'allow'
-            params = create_confirmation_params(tag) ## EXISTS
+            params = create_confirmation_params('conf') ## EXISTS
             params['op'] = tag
             params['cid'] = confirmationhash["data_confid"]
             params['ck'] = confirmationhash["data_key"]
