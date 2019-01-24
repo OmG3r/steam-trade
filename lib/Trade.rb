@@ -94,7 +94,7 @@ module TradeCommands
 
       def sell_items(items, price)
         raise "no account logged in, #{self} " if @loggedin == false
-        raise "Must given array" if items.class != Array
+        raise "Must be given an array" if items.class != Array
 
 
         headers = {
@@ -102,17 +102,17 @@ module TradeCommands
               'Referer' => 'https://steamcommunity.com/id/SimplifiedPact/inventory/',
               'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36 OPR/54.0.2952.54',
         }
-        
+        i = 0
         items.each { |asset|
 
           asset['sessionid'] = sessionid_cookie()
           asset['price'] = price
           verd = {'sucess' => false}
           tries = 0
-          i = 0
-          until verd['success'] == true || tries == 2
-                resp = @session.post('https://steamcommunity.com/market/sellitem/', asset, headers)
 
+          until verd['success'] == true || tries == 2
+                puts "attempting to sell"
+                resp = @session.post('https://steamcommunity.com/market/sellitem/', asset, headers)
                 verd = JSON.parse(resp.content)
 
                 if verd['success'] == false
@@ -120,11 +120,13 @@ module TradeCommands
                       tries += 1
                       sleep(10)
                 else
+                  puts verd
                   i += 1
                   puts "#{i} / #{items.length} sold"
+                  sleep(1)
                 end
+
           end
-          sleep(1)
         }
       end
 
