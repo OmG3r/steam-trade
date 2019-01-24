@@ -75,6 +75,7 @@ module GuardCommands
             if @android_id.nil?
                   hexed = Digest::SHA1.hexdigest(@steamid.to_s)
                   res = 'android:' + [hexed[0..7],hexed[8..11],hexed[12..15],hexed[16..19],hexed[20..31]].join('-')
+                  @android_id = res
                   return res
             else
                   return @android_id
