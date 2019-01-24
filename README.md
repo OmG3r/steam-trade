@@ -1,8 +1,6 @@
-# steam-trade V0.3.0
+# steam-trade V0.3.2
 
 **PLEASE IF SOMETHING DOES NOT WORK PROPERLY MAKE A GITHUB ISSUE**
-
-Please check constantly for updates cause i'm still making this gem.
 
 This gem simplifes/allows sending steam trade offers programmatically.
 
@@ -10,6 +8,11 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
 
 # Changelog
 ```
+0.3.2:
+- added send_trade_allow_request() (mobile confirmation) and confirm_all() (mobile confirmation)
+0.3.1:
+- added cottage() , vote_2018() and sell_items()
+
 0.3.0:
 - hotfix for cookie login
 
@@ -94,6 +97,8 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
     - [set_inventory_cache()](#set_inventory_cache)
   - [Sending a trade offer](#sending-a-trade-offer)
     - [send_offer()](#send_offermyarraytheirarraytrade_offer_linkmessage)
+    - [send_trade_allow_request()](#send_trade_allow_requesttrade_offer_id)
+    - [confirm_all()](#confirm_all)
   - [Handling Trade Offers](#handling-trade-offers)
     - [set_api_key()](#set_api_keyapi_key)
     - [get_trade_offers()](#get_trade_offerstime)
@@ -323,6 +328,8 @@ then you can send your offer
 - `message` is the comment you want to include in the trade offer
 
 - `myarray`, `theirarray`, `trade_offer_link` are required, `message` is optional
+- **returns a hash which contains informations about the trade**
+- **identity_secret** is required for this function to work
 ```ruby
 require 'steam-trade'
 
@@ -336,13 +343,48 @@ myarray = [me[5] , me[20] , me[60]].compact!
 theirarray = [his[1], his[20], his[30]].compact!
 
 # if you are friends
-account.send_offer(myarray,theirarray,"nomg3r",message)
+resp = account.send_offer(myarray,theirarray,"nomg3r",message)
 #or (as friends)
 account.send_offer(myarray,theirarray,'76561198370420964',message)
 
 # whenever
 account.send_offer(myarray,theirarray,"https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt",message)
 
+
+```
+
+#### `send_trade_allow_request(trade_offer_id)`
+- `trade_offer_id` is the ID of the offer you want to confirm (mobile confirmation)
+- **identity_secret** is required for this function to work
+```ruby
+require 'steam-trade'
+
+account = Handler.new('username','password','shared_secret')
+account.mobile_info('identity_secret')
+
+me = account.normal_get_inventory()
+his = account.normal_get_inventory("nomg3r")
+
+myarray = [me[5] , me[20] , me[60]].compact!
+theirarray = [his[1], his[20], his[30]].compact!
+
+resp = account.send_offer(myarray,theirarray,"nomg3r",message)
+
+account.send_trade_allow_request(resp['trade_offer_id'])
+
+```
+
+#### `confirm_all()`
+- confirms all trades which are waiting for mobile confirmation
+- **identity_secret** is required for this function to work
+
+```ruby
+require 'steam-trade'
+
+account = Handler.new('username','password','shared_secret')
+account.mobile_info('identity_secret')
+
+account.confirm_all
 ```
 ## Handling Trade Offers
 you might want to read [Steam Trading API](https://developer.valvesoftware.com/wiki/Steam_Web_API/IEconService)
