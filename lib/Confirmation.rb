@@ -13,6 +13,9 @@ module ConfirmationCommands
             send_confirmation(confirmationhash) #tenth
       end
 
+      def confirm_all()
+        send_array_confirmation(get_confirmations())
+      end
       private
       def get_confirmations() ##SECOND
             confirmations = []
@@ -61,6 +64,7 @@ module ConfirmationCommands
 
 
       def select_trade_offer_confirmation(trade_id, confirmations) ## seventh
+
             confirmations.each { |confirmhash|
                   confirmation_details_page = fetch_confirmation_details_page(confirmhash) ## eighteth
                   confirm_id = get_confirmation_trade_offer_id(confirmation_details_page) ## nineth
@@ -97,6 +101,32 @@ module ConfirmationCommands
             no = nil
             page = @session.get('https://steamcommunity.com/mobileconf/ajaxop', params,no ,headers)
             return JSON.parse(page.content)
+      end
+
+
+
+      def send_array_confirmation(conf_array)
+        i = 0
+        conf_array.each { |confirmationhash|
+          begin
+            tag = 'allow'
+            params = create_confirmation_params('conf') ## EXISTS
+            params['op'] = tag
+            params['cid'] = confirmationhash["data_confid"]
+            params['ck'] = confirmationhash["data_key"]
+            headers = {'X-Requested-With' => 'XMLHttpRequest'}
+            #@session.pre_connect_hooks << lambda do |agent, request|
+            #     request['X-Requested-With'] = 'XMLHttpRequest'
+            #end
+            no = nil
+            page = @session.get('https://steamcommunity.com/mobileconf/ajaxop', params,no ,headers)
+            i = i + 1
+            puts "confirmed #{i} / #{cof_array.length}"
+          rescue
+            sleep(2)
+          end
+        }
+
       end
 
 end
