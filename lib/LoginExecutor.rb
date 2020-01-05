@@ -108,8 +108,9 @@ module LoginCommands
             @session.cookie_jar << cookie
             @loggedin = true
             begin
-                  text = Nokogiri::HTML(@session.get("https://steamcommunity.com/dev/apikey").content).css('#bodyContents_ex').css('p').first.text.split(' ')
+                  text = Nokogiri::HTML(@session.get("https://steamcommunity.com/dev/apikey").content).css('#bodyContents_ex').css('p').first.text
                   if text.include?('Registering for a Steam Web API Key will enable you to access many Steam features from your own website') == false
+                        text = text.split(' ')
                         @api_key = text[1]
                   end
             rescue
