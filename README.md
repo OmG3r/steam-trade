@@ -1,4 +1,4 @@
-# steam-trade V0.3.2
+# steam-trade V0.3.3
 
 **PLEASE IF SOMETHING DOES NOT WORK PROPERLY MAKE A GITHUB ISSUE**
 
