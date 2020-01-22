@@ -8,6 +8,8 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
 
 # Changelog
 ```
+0.3.3:
+- hotfix login without api-key
 0.3.2:
 - added send_trade_allow_request() (mobile confirmation) and confirm_all() (mobile confirmation)
 0.3.1:
