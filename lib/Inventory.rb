@@ -49,7 +49,7 @@ module InventoryCommands
 
             output "total loaded #{items.length} asset"
             if @inventory_cache == true
-                  File.open("./normal_#{steamid}_#{appid}.inventory", 'w') {|f| f.puts items.to_json}
+                  File.open("./normal_#{steamid}_#{appid}.inventory", 'w') {|f| f.write items.to_json}
             end
 
             return items
@@ -157,7 +157,7 @@ module InventoryCommands
 
             output "total loaded #{hash["assets"].length} asset"
             if @inventory_cache == true
-                  File.open("./raw_#{steamid}_#{appid}.inventory", 'w') {|f| f.puts hash.to_json}
+                  File.open("./raw_#{steamid}_#{appid}.inventory", 'w') {|f| f.write hash.to_json}
             end
 
             return hash
@@ -179,7 +179,7 @@ module InventoryCommands
 
                   until html != ''
                         begin
-                              html = @session.get("https://steamcommunity.com/inventory/#{steamid}/#{appid}/#{context}?start_assetid=#{last_id}&count=5000").content
+                              html = @session.get("https://steamcommunity.com/inventory/#{steamid}/#{appid}/#{context}?start_assetid=#{last_id}&l=english&count=5000").content
                         rescue
                               raise "Cannot get inventory, tried 3 times" if tries == 3
                               tries = tries + 1
@@ -350,7 +350,7 @@ e
 
                         until html != ''
                               begin
-                                    html = @@session.get("https://steamcommunity.com/inventory/#{steamid}/#{appid}/#{context}?start_assetid=#{last_id}&count=5000").content
+                                    html = @@session.get("https://steamcommunity.com/inventory/#{steamid}/#{appid}/#{context}?start_assetid=#{last_id}&l=english&count=5000").content
                               rescue
                                     raise "Cannot get inventory, tried 3 times" if tries == 3
                                     tries = tries + 1
@@ -459,7 +459,6 @@ e
                               sleep(0.5)
                         end
                   end
-
                   get = JSON.parse(html)
                   raise "something totally unexpected happened while getting inventory with appid #{appid} of steamid #{steamid} with contextid #{context}" if get.key?("error") == true
                   if get["total_inventory_count"] == 0
