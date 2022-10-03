@@ -322,8 +322,8 @@ partner_inventory = loggedlogged.normal_get_inventory('CardExchange') # this wil
 #### `send_offer(myarray,theirarray,trade_offer_link,message)`
 **MUST be logged in to use this command**
 then you can send your offer
-- `myarray` is an array which contains hashes of selected items to send in the offer. (currently you must get this alone)
-- `Theirarray` is an array which contains hashes of selected items to receive in the offer. (currently you must get this alone)
+- `myarray` is an array which contains hashes of selected items to send in the offer. (currently you must get this on your own)
+- `Theirarray` is an array which contains hashes of selected items to receive in the offer. (currently you must get this on your own)
 - `trade_offer_link` can be the trade link of you partner `ex: https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt`
 - `trade_offer_link` can be a steamID, however using a steamID requires you and your partner to be friends on steam
 - `trade_offer_link` can  be a profileID, however using a profileID requires you and your partner to be friends on steam
