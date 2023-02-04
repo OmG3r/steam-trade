@@ -140,6 +140,7 @@ then you need to login and optionally set your shared_secret and identity_secret
 - `shared_secret` is used to generate steam authentication codes so you won't have to write them manually each time you login.
 - `time_difference`is the difference between your time and steam servers, this affects how 2FA codes are generated (**this MUST BE an integer**)
 - `remember_me` is a boolean used to indicate whether you want cookies which expire shortly if set to **false** or stay valid for weeks if set to **true**
+NOTE: Steam's rate limits have been made more strict. If you want to login to two or more accounts consequently, you have to have at leat a minute of delay between Handler.new() calls!
 ```ruby
 require 'steam-trade'
 

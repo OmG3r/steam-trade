@@ -3,7 +3,7 @@ module LoginCommands
 ########################################################################################
      private
       def login()
-            response = @session.post('https://store.steampowered.com/login/getrsakey/', {'username' => @username}).content
+            response = @session.post('https://steamcommunity.com/login/getrsakey/', {'username' => @username}).content
             data = pass_stamp(response,@password)
             encrypted_password = data["password"]
             timestamp = data["timestamp"]
@@ -22,7 +22,7 @@ module LoginCommands
                   'rsatimestamp' => timestamp,
                   'remember_login' => @remember
             }
-            login = @session.post('https://store.steampowered.com/login/dologin', send ).content
+            login = @session.post('https://steamcommunity.com/login/dologin', send).content
             firstreq = JSON.parse(login)
 
             raise "Incorrect username or password" if firstreq["message"] == "The account name or password that you have entered is incorrect."
@@ -35,7 +35,7 @@ module LoginCommands
                   if firstreq['captcha_needed'] == true
                         gid = firstreq['captcha_needed']
                         File.delete("./#{username}_captcha.png") if File.exist?("./#{username}_captcha.png")
-                        @session.get("https://store.steampowered.com/login/rendercaptcha?gid=#{gid}").save "./#{@username}_captcha.png"
+                        @session.get("https://steamcommunity.com/login/rendercaptcha?gid=#{gid}").save "./#{@username}_captcha.png"
                         puts "you need to write a captcha to continue"
                         puts "there is an image named #{@username}_captcha in the script directory"
                         puts "open it and write the captha here"
@@ -71,7 +71,7 @@ module LoginCommands
                         'remember_login' => @remember
                   }
                   output "attempting to login"
-                  login = @session.post('https://store.steampowered.com/login/dologin', send ).content
+                  login = @session.post('https://steamcommunity.com/login/dologin', send ).content
                   firstreq = JSON.parse(login)
 
             end
@@ -108,14 +108,16 @@ module LoginCommands
             @session.cookie_jar << cookie
             @loggedin = true
             begin
-                  text = Nokogiri::HTML(@session.get("https://steamcommunity.com/dev/apikey").content).css('#bodyContents_ex').css('p').first.text
-                  @api_key = text.delete("Key: ") if text.start_with?("Key: ")
+                  text = Nokogiri::HTML(@session.get("https://steamcommunity.com/dev/apikey").content).css('#bodyContents_ex').css('p').first.text.split(' ')
+                  if text.include?('Registering for a Steam Web API Key will enable you to access many Steam features from your own website') == false
+                        @api_key = text[1]
+                  end
             rescue
                   output "Could not retrieve api_key"
             end
 
-            unless @api_key.nil?
-                  data = get_player_summaries(@steamid)
+            if !@api_key.nil?
+                  data = get_player_summaries(@steamid) if !@api_key.nil?
                   data.each { |element|
                         if element["steamid"].to_s == @steamid.to_s
                               @persona = element["personaname"]
@@ -124,7 +126,7 @@ module LoginCommands
             end
             output "logged in as #{@persona}"
             output "your steamid is #{@steamid}"
-            output "loaded API_KEY : #{@api_key}" unless @api_key.nil?
+            output "loaded API_KEY : #{@api_key}" if !@api_key.nil?
       end
 ########################################################################################
 
