@@ -1,4 +1,4 @@
-z# steam-trade V0.3.3
+# steam-trade V0.3.2
 
 **PLEASE IF SOMETHING DOES NOT WORK PROPERLY MAKE A GITHUB ISSUE**
 
@@ -8,8 +8,6 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
 
 # Changelog
 ```
-0.3.3:
-- hotfix login without api-key
 0.3.2:
 - added send_trade_allow_request() (mobile confirmation) and confirm_all() (mobile confirmation)
 0.3.1:
@@ -99,15 +97,15 @@ this gem is primarly for trading cards, tho can be used to CS:GO and other games
     - [set_inventory_cache()](#set_inventory_cache)
   - [Sending a trade offer](#sending-a-trade-offer)
     - [send_offer()](#send_offermyarraytheirarraytrade_offer_linkmessage)
-    - [send_trade_allow_request()](#send_trade_allow_requesttradeofferid)
+    - [send_trade_allow_request()](#send_trade_allow_requesttrade_offer_id)
     - [confirm_all()](#confirm_all)
   - [Handling Trade Offers](#handling-trade-offers)
     - [set_api_key()](#set_api_keyapi_key)
     - [get_trade_offers()](#get_trade_offerstime)
-    - [get_trade_offer()](#get_trade_offertradeofferid)
-    - [accept_trade_offer()](#accept_trade_offertradeofferid)
-    - [decline_trade_offer()](#decline_trade_offertradeofferid)
-    - [cancel_trade_offer()](#cancel_trade_offertradeofferid)
+    - [get_trade_offer()](#get_trade_offertrade_offer_id)
+    - [accept_trade_offer()](#accept_trade_offertrade_offer_id)
+    - [decline_trade_offer()](#decline_trade_offertrade_offer_id)
+    - [cancel_trade_offer()](#cancel_trade_offertrade_offer_id)
   - [Counting badges owned](#counting-badges-owned)
     - [sets_count()](#sets_counttargetnon_marketable)
     - [update_blueprint()](#update_blueprint)
@@ -322,8 +320,8 @@ partner_inventory = loggedlogged.normal_get_inventory('CardExchange') # this wil
 #### `send_offer(myarray,theirarray,trade_offer_link,message)`
 **MUST be logged in to use this command**
 then you can send your offer
-- `myarray` is an array which contains hashes of selected items to send in the offer. (currently you must get this on your own)
-- `Theirarray` is an array which contains hashes of selected items to receive in the offer. (currently you must get this on your own)
+- `myarray` is an array which contains hashes of selected items to send in the offer. (currently you must get this alone)
+- `Theirarray` is an array which contains hashes of selected items to receive in the offer. (currently you must get this alone)
 - `trade_offer_link` can be the trade link of you partner `ex: https://steamcommunity.com/tradeoffer/new/?partner=410155236&token=H-yK-GFt`
 - `trade_offer_link` can be a steamID, however using a steamID requires you and your partner to be friends on steam
 - `trade_offer_link` can  be a profileID, however using a profileID requires you and your partner to be friends on steam
@@ -355,8 +353,8 @@ account.send_offer(myarray,theirarray,"https://steamcommunity.com/tradeoffer/new
 
 ```
 
-#### `send_trade_allow_request(tradeofferid)`
-- `tradeofferid` is the ID of the offer you want to confirm (mobile confirmation)
+#### `send_trade_allow_request(trade_offer_id)`
+- `trade_offer_id` is the ID of the offer you want to confirm (mobile confirmation)
 - **identity_secret** is required for this function to work
 ```ruby
 require 'steam-trade'
@@ -372,7 +370,7 @@ theirarray = [his[1], his[20], his[30]].compact!
 
 resp = account.send_offer(myarray,theirarray,"nomg3r",message)
 
-account.send_trade_allow_request(resp['tradeofferid'])
+account.send_trade_allow_request(resp['trade_offer_id'])
 
 ```
 
@@ -424,14 +422,14 @@ polling = Thread.new(logged) { |logged|
   end
 }
 ```
-#### `get_trade_offer(tradeofferid)`
+#### `get_trade_offer(trade_offer_id)`
 gets more information about a specific trade offer
-- `tradeofferid` is the id of the offer you want to confirm (you can get the id using [this](#get_trade_offerstime) to get the offerID
+- `trade_offer_id` is the id of the offer you want to confirm (you can get the id using [this](#get_trade_offerstime) to get the offerID
 
 have no example how to actually use this cause `get_trade_offers(time)` is probably better
 
-#### `accept_trade_offer(tradeofferid)`
-- `tradeofferid` is the id of the offer you want to confirm (you can get the id using [this](#get_trade_offerstime) to get the offerID
+#### `accept_trade_offer(trade_offer_id)`
+- `trade_offer_id` is the id of the offer you want to confirm (you can get the id using [this](#get_trade_offerstime) to get the offerID
 ```ruby
 require 'steam-trade'
 logged = Handler.new('username','password','shared_secret')
@@ -452,9 +450,9 @@ polling = Thread.new(logged) { |logged|
   end
 }
 ```
-#### `decline_trade_offer(tradeofferid)`
+#### `decline_trade_offer(trade_offer_id)`
 this declines a trade offer you **RECEIVED**
-- `tradeofferid` is the id of the offer you want to confirm (you can get the id using [this](#get_trade_offerstime) to get the offerID
+- `trade_offer_id` is the id of the offer you want to confirm (you can get the id using [this](#get_trade_offerstime) to get the offerID
 
 ```ruby
 require 'steam-trade'
@@ -476,9 +474,9 @@ polling = Thread.new(logged) { |logged|
   end
 }
 ```
-#### `cancel_trade_offer(tradeofferid)`
+#### `cancel_trade_offer(trade_offer_id)`
 this cancels a trade offer you **SENT**
-- `tradeofferid` is the id of the offer you want to confirm (you can get the id using [this](#get_trade_offerstime) to get the offerID
+- `trade_offer_id` is the id of the offer you want to confirm (you can get the id using [this](#get_trade_offerstime) to get the offerID
 ```ruby
 require 'steam-trade'
 logged = Handler.new('username','password','shared_secret')
