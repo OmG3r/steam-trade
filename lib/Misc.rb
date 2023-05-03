@@ -157,6 +157,8 @@ end
 
 module Util
       def self.gem_libdir
+            return
+
             require_relative 'meta/version.rb'
             gem_name = 'steam-trade'
             version = '0.0.5'

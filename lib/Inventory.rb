@@ -320,10 +320,10 @@ e
                   steamid,token = verify_profileid_or_trade_link_or_steamid(steamid)
                   raise "invalid steamid : #{steamid}, length of received :: #{steamid.to_s.length}, normal is 17" if steamid.to_s.length != 17
                   ## verify appid
-                  if ["753","730",'570','440'].include?(appid.to_s) == false
-                        allgames = JSON.parse(File.read("#{@@libdir}blueprints/game_inv_list.json"))
-                        raise "invalid appid: #{appid}" if allgames.include?(appid.to_s) == false
-                  end
+                  # if ["753","730",'570','440'].include?(appid.to_s) == false
+                  #       allgames = JSON.parse(File.read("#{@@libdir}blueprints/game_inv_list.json"))
+                  #       raise "invalid appid: #{appid}" if allgames.include?(appid.to_s) == false
+                  # end
                   ## end verify appid
 
                   items = []
