@@ -1,6 +1,3 @@
-
-
-
 module ConfirmationCommands
 
 
@@ -8,6 +5,22 @@ module ConfirmationCommands
 
 
       def send_trade_allow_request(trade_id) ###FIRST
+            # {     "type"=>2, "type_name"=>"Trade Offer", "id"=>"13813608014",
+            #       "creator_id"=>"6154146793", "nonce"=>"12026724049760759094",
+            #       "creation_time"=>1687514850, "cancel"=>"Cancel",
+            #       "accept"=>"Send Offer",
+            #       "multi"=>false, "headline"=>"Nicardo",
+            #       "warn"=>nil
+            # }
+            # {
+            #       "type"=>3, "type_name"=>"Market Listing", "id"=>"13809682251",
+            #       "creator_id"=>"4295919183828680123", "nonce"=>"9979474839352938391",
+            #       "creation_time"=>1687449333, "cancel"=>"Cancel",
+            #       "accept"=>"Create Listing",
+            #       "multi"=>true,
+            #       "headline"=>"Selling for 75₴",
+            #       "summary"=>["Revolution Case"], "warn"=>nil
+            # }
             confirmations = get_confirmations() ###second
             confirmationhash = select_trade_offer_confirmation(trade_id, confirmations) #seventh
             send_confirmation(confirmationhash) #tenth
@@ -20,11 +33,12 @@ module ConfirmationCommands
       def get_confirmations() ##SECOND
             confirmations = []
             confirmations_page = fetch_confirmations_page()
-            Nokogiri::HTML(confirmations_page).css('#mobileconf_list').css('.mobileconf_list_entry').each { |trade|
+
+            JSON.parse(confirmations_page, symbolize_names: true)[:conf].each { |trade|
                   add = {
-                        'id' => trade['id'].sub('conf', ''),
-                        'data_confid' => trade['data-confid'],
-                        'data_key' => trade['data-key']
+                        'id' => trade[:creator_id],
+                        'data_confid' => trade[:id],
+                        'data_key' => trade[:nonce]
                   }
                   confirmations <<  add
             }
@@ -52,7 +66,8 @@ module ConfirmationCommands
             headers = {'X-Requested-With' => 'com.valvesoftware.android.steam.community'}
 
             no = nil
-            response = @session.get('https://steamcommunity.com/mobileconf/conf', params, no, headers)
+
+            response = @session.get('https://steamcommunity.com/mobileconf/getlist', create_confirmation_params(tag), no, headers)
             html = response.content
             if html.include?('Steam Guard Mobile Authenticator is providing incorrect Steam Guard codes.')
                   raise("identity secret: #{@identity_secret} is incorrect")
@@ -66,9 +81,7 @@ module ConfirmationCommands
       def select_trade_offer_confirmation(trade_id, confirmations) ## seventh
 
             confirmations.each { |confirmhash|
-                  confirmation_details_page = fetch_confirmation_details_page(confirmhash) ## eighteth
-                  confirm_id = get_confirmation_trade_offer_id(confirmation_details_page) ## nineth
-                  if confirm_id == trade_id
+                  if confirmhash['id'] == trade_id
                         return confirmhash
                   end
             }
@@ -95,9 +108,6 @@ module ConfirmationCommands
             params['cid'] = confirmationhash["data_confid"]
             params['ck'] = confirmationhash["data_key"]
             headers = {'X-Requested-With' => 'XMLHttpRequest'}
-            #@session.pre_connect_hooks << lambda do |agent, request|
-            #     request['X-Requested-With'] = 'XMLHttpRequest'
-            #end
             no = nil
             page = @session.get('https://steamcommunity.com/mobileconf/ajaxop', params,no ,headers)
             return JSON.parse(page.content)
